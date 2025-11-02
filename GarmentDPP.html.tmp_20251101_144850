@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title></title>
+<!-- Local font fallback to avoid CORS issues -->
+<style>
+:root{
+  --primary:#02154e;
+  --accent:#f9ba00;
+  --green:#005530;
+  --red:#D51635;
+  --navy:#02154e;
+  --orange:#f9ba00;
+  --bg:#f6f7f9;
+  --card:#ffffff;
+  --muted:#8a94a6;
+  --border:#e6e8ee;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:#1b2430}
+
+/* Header */
+.app-header{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:14px 18px; border-bottom:1px solid var(--border); background:#fff;
+  position:sticky; top:0; z-index:40;
+}
+.header-left{display:flex; align-items:center; gap:12px}
+.brand-logo{display:inline-block;width:48px;height:48px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,85,48,0.3);overflow:hidden}
+.brand-logo img{width:100%;height:100%;object-fit:cover;display:block}
+.title{font-size:18px;font-weight:700;}
+.subtitle{font-size:12px;color:var(--muted)}
+
+/* Back link button */
+.back-link{
+  display:inline-flex; align-items:center; gap:8px; height:40px; padding:0 14px;
+  border-radius:10px; background:var(--green); color:#fff; font-weight:600; text-decoration:none;
+  border:1px solid transparent; box-shadow:0 2px 8px rgba(0,85,48,0.25);
+  transition:transform .15s, box-shadow .15s, background .15s;
+}
+.back-link:hover{ transform:translateY(-1px); box-shadow:0 4px 12px rgba(0,85,48,0.35); }
+.back-link:active{ transform:translateY(0); }
+
+/* Import notification */
+.import-notification{
+  background:linear-gradient(135deg, #4CAF50, #81C784);
+  color:white; padding:12px 18px; text-align:center; font-weight:600;
+  border-bottom:1px solid rgba(76,175,80,0.3); box-shadow:0 2px 8px rgba(76,175,80,0.25);
+  display:none;
+}
+.import-notification.show{ display:block; animation:slideDown 0.5s ease; }
+@keyframes slideDown{ from{transform:translateY(-100%)} to{transform:translateY(0)} }
+
+/* Layout */
+.container{max-width:1200px;margin:18px auto;padding:0 18px}
+.form-wrap{background:var(--card);border:2px solid var(--border);border-radius:14px;box-shadow:0 2px 10px rgba(2,21,78,0.05);position:relative}
+.form-wrap.editing{border-color:var(--green);}
+.editing-label{position:absolute;top:-12px;left:14px;background:var(--green);color:#fff;padding:2px 8px;font-size:12px;border-radius:6px;display:none;}
+.form-wrap.editing .editing-label{display:inline-block;}
+.form-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;overflow-x:auto;padding:14px;scrollbar-width:thin}
+.field{flex:1 1 200px;display:flex;flex-direction:column;gap:6px;min-width:160px}
+.field label{font-size:12px;color:var(--muted)}
+.field input,.field select{height:40px;border:1px solid var(--border);border-radius:10px;padding:0 10px;background:#fff;font-size:14px}
+.field select[multiple]{height:auto;min-height:40px;padding:6px}
+input[readonly]{background:#f7f9fb;color:#4b5563;border-style:dashed}
+.helper{font-size:11px;color:var(--muted);margin-top:-2px}
+.actions{display:flex;gap:10px;padding:0 14px 14px;flex-wrap:wrap}
+.btn{height:40px;padding:0 14px;border:1px solid transparent;border-radius:10px;background:var(--green);color:#fff;font-weight:600;cursor:pointer;transition:all 0.2s}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,85,48,0.3)}
+.btn.secondary{background:#fff;color:var(--primary);border-color:var(--border)}
+.btn.secondary:hover{background:var(--bg);border-color:var(--primary)}
+.btn.danger{background:var(--red);color:#fff}
+.btn.danger:hover{background:#b01429;box-shadow:0 4px 12px rgba(213,22,53,0.3)}
+
+/* Dashboard cards */
+.dashboard{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:16px}
+.card{background:linear-gradient(135deg, #fff, #fafbfc);border:1px solid var(--border);border-radius:14px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.05);transition:transform 0.2s}
+.card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,0.1)}
+.metric-title{font-size:12px;color:var(--muted)}
+.metric-value{font-size:24px;font-weight:700;margin-top:8px;background:linear-gradient(135deg, var(--green), var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+/* List / Scorecards */
+.list{margin-top:16px;display:grid;gap:12px}
+.scorecard{border:1px solid var(--border);border-radius:14px;background:#fff;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);transition:transform 0.2s, box-shadow 0.2s}
+.scorecard:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,0.12)}
+.scorecard-header{background:linear-gradient(135deg, var(--orange), #ffca28);color:#1a1a1a;display:flex;justify-content:space-between;align-items:center;padding:12px 16px;font-weight:700;box-shadow:0 2px 4px rgba(0,0,0,0.1);border-radius:14px 14px 0 0}
+.scorecard-body{padding:12px 14px;border-top:1px solid var(--border)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.kv{background:#fafafa;border:1px solid var(--border);border-radius:10px;padding:10px}
+.kv .k{font-size:11px;color:var(--muted)}
+.kv .v{font-size:14px;font-weight:600;margin-top:4px}
+.row-actions{display:flex;gap:8px}
+.icon-btn{height:34px;padding:0 10px;border-radius:8px;border:1px solid var(--border);background:#fff;cursor:pointer;transition:all 0.2s;font-size:12px}
+.icon-btn:hover{background:var(--bg);border-color:var(--green)}
+.icon-btn.edit:hover{background:rgba(0,85,48,0.1);color:var(--green)}
+.icon-btn.delete:hover{background:rgba(213,22,53,0.1);color:var(--red);border-color:var(--red)}
+
+/* Multi-Select Dropdown */
+.multi-select-container { position: relative; width: 100%; }
+.multi-select-display { min-height: 40px; border: 1px solid var(--border); border-radius: 10px; padding: 6px 10px; background: #fff; cursor: pointer; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; font-size: 14px; }
+.multi-select-display:focus { outline: 2px solid var(--green); outline-offset: 1px; }
+.selected-tag { background: linear-gradient(135deg, var(--green), #007d4a); color: white; padding: 3px 10px; border-radius: 12px; font-size: 12px; display: flex; align-items: center; gap: 6px; white-space: nowrap; box-shadow: 0 2px 4px rgba(0,85,48,0.2); font-weight: 500; }
+.remove-tag { cursor: pointer; font-weight: bold; font-size: 14px; line-height: 1; padding: 0 2px; border-radius: 50%; transition: background-color 0.2s; }
+.remove-tag:hover { background: rgba(255,255,255,0.2); }
+.placeholder { color: var(--muted); font-size: 14px; flex: 1; }
+.dropdown-arrow { margin-left: auto; transition: transform 0.2s; font-size: 12px; color: var(--muted); }
+.multi-select-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; max-height: 200px; overflow-y: auto; display: none; margin-top: 2px; }
+.multi-select-dropdown.open { display: block; }
+.dropdown-option { padding: 10px 12px; cursor: pointer; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; transition: background-color 0.2s; }
+.dropdown-option:last-child { border-bottom: none; }
+.dropdown-option:hover { background: var(--bg); }
+.dropdown-option.selected { background: rgba(0, 85, 48, 0.1); font-weight: 500; }
+.checkbox { width: 16px; height: 16px; border: 2px solid var(--border); border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: white; transition: all 0.2s; }
+.checkbox.checked { background: var(--green); border-color: var(--green); }
+
+/* Responsive */
+@media (max-width:1200px){.dashboard{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:1000px){.dashboard{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.dashboard{grid-template-columns:1fr}.grid{grid-template-columns:1fr}}
+</style>
+
+<!-- ICON LIBRARIES -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<!-- END ICON LIBRARIES -->
+
+</head>
+<body>
+<div style="text-align:right;margin:16px 24px;">
+  <a href="index.html" class="btn btn-success" style="
+    background-color:#006838;color:#fff;padding:10px 22px;border-radius:6px;
+    font-weight:600;text-decoration:none;">← Back to Main Dashboard</a>
+</div>
+
+<header class="app-header">
+  <div class="field">
+        <label>Fabric Type</label>
+        <select id="fabricType">
+          <option>Woven</option><option>Denim</option><option>Circular Knit</option>
+          <option>Flatknit</option><option>Nonwoven</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Fabric Name</label>
+        <input id="fabricName" type="text" placeholder="e.g., Single Jersey / Twill / Denim" />
+        <div class="helper">Required</div>
+      </div>
+
+      <div class="field">
+        <label>Fabric Code</label>
+        <div class="input-row">
+          <input id="fabricCode" type="text" placeholder="e.g., SJ-180-KN / DN-420-WV" />
+          <button type="button" class="btn secondary" id="genCodeBtn" title="Generate from Type + Name + GSM">Generate</button>
+        </div>
+        <div class="helper">Required · Pattern: <code>AAA-123(-XXXX)</code></div>
+      </div>
+
+      <div class="field">
+        <label>Fabric Construction</label>
+        <select id="fabricConstruction">
+          <!-- KNIT -->
+          <optgroup label="Knit">
+            <option>Single Jersey</option><option>Double Jersey</option><option>Interlock</option>
+            <option>Rib 1x1</option><option>Rib 2x2</option><option>Ottoman</option><option>Waffle Knit</option>
+            <option>French Terry</option><option>Terry</option><option>Fleece Knit</option><option>Pique Knit</option>
+            <option>Jacquard Knit</option><option>Mesh Knit</option><option>Ponte Roma</option><option>Milano Rib</option>
+          </optgroup>
+          <!-- WOVEN -->
+          <optgroup label="Woven">
+            <option>Plain Weave / Poplin</option><option>Oxford</option><option>Chandray</option><option>Canvas</option>
+            <option>Twill</option><option>Denim</option><option>Satin</option><option>Sateen</option>
+            <option>Herringbone</option><option>Dobby</option><option>Seersucker</option><option>Jacquard Woven</option>
+            <option>Corduroy</option><option>Ripstop</option>
+          </optgroup>
+          <!-- OTHER -->
+          <optgroup label="Other">
+            <option>Lace</option><option>Velvet</option><option>Velour</option><option>Softshell (Knit Bonded)</option>
+            <option>Bonded / Laminated</option><option>Nonwoven Spunbond</option><option>Nonwoven Meltblown</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <div class="field"><label>Fabric Weight (gsm)</label><input id="fabricWeight" type="number" min="0" step="1" placeholder="e.g., 180"></div>
+      <div class="field"><label>Quantity</label><input id="qty" type="number" min="0" step="1" placeholder="e.g., 1200"></div>
+
+      <div class="field">
+        <label>Production Step (multi)</label>
+        <div class="multi-select-container" id="stepsMultiSelect">
+          <div class="multi-select-display" tabindex="0">
+            <span class="placeholder">Select production steps...</span>
+            <span class="dropdown-arrow">▼</span>
+          </div>
+          <div class="multi-select-dropdown">
+            <div class="ms-actions">
+              <div class="ms-search"><input type="text" placeholder="Search steps..."></div>
+              <button type="button" class="small-btn ms-select-all">Select All</button>
+              <button type="button" class="small-btn ms-clear-all">Clear</button>
+            </div>
+            <div class="dropdown-option" data-value="Cutting"><div class="checkbox"></div><span>Cutting</span></div>
+            <div class="dropdown-option" data-value="Bundling"><div class="checkbox"></div><span>Bundling</span></div>
+            <div class="dropdown-option" data-value="Sewing"><div class="checkbox"></div><span>Sewing</span></div>
+            <div class="dropdown-option" data-value="Embroidery"><div class="checkbox"></div><span>Embroidery</span></div>
+            <div class="dropdown-option" data-value="Printing"><div class="checkbox"></div><span>Printing</span></div>
+            <div class="dropdown-option" data-value="Washing"><div class="checkbox"></div><span>Washing</span></div>
+            <div class="dropdown-option" data-value="Drying"><div class="checkbox"></div><span>Drying</span></div>
+            <div class="dropdown-option" data-value="Finishing"><div class="checkbox"></div><span>Finishing</span></div>
+            <div class="dropdown-option" data-value="Trimming"><div class="checkbox"></div><span>Trimming</span></div>
+            <div class="dropdown-option" data-value="Ironing/Pressing"><div class="checkbox"></div><span>Ironing/Pressing</span></div>
+            <div class="dropdown-option" data-value="Quality Control"><div class="checkbox"></div><span>Quality Control</span></div>
+            <div class="dropdown-option" data-value="Packing"><div class="checkbox"></div><span>Packing</span></div>
+            <div class="dropdown-option" data-value="Dispatch"><div class="checkbox"></div><span>Dispatch</span></div>
+          </div>
+        </div>
+        <div class="helper">Tıklayarak istediğiniz production step'leri seçin.</div>
+      </div>
+
+      <!-- NEW: Auto CO2 field -->
+      <div class="field">
+        <label>CO₂ Emission (kg) – Auto</label>
+        <input id="co2" type="number" placeholder="0.00" readonly>
+        <div class="helper" id="co2Helper">Estimated from GSM × product area × emission factor.</div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn" id="addBtn">➕ Add Record</button>
+      <button type="button" class="btn secondary" id="clearBtn">🗑️ Clear</button>
+      <button type="button" class="btn" id="saveChangesBtn" style="display:none;">💾 Save Changes</button>
+      <button type="button" class="btn danger" id="cancelEditBtn" style="display:none;">❌ Cancel</button>
+      <button type="button" class="btn secondary" id="exportCsvBtn">⬇️ Export CSV</button>
+      <button type="button" class="btn secondary" id="importCsvBtn">⬆️ Import CSV</button>
+      <button type="button" class="btn secondary" id="templateCsvBtn">📄 Download CSV Template</button>
+      <button type="button" class="btn secondary" id="importOrdersBtn">📥 Import Orders</button>
+      <button type="button" class="btn secondary" id="debugImportBtn">🔍 Debug Import</button>
+    </div>
+  </section>
+
+  <section class="dashboard">
+    <div class="card">
+      ';
+    return;
+  }
+
+  container.innerHTML = state.rows.map(row => `
+    <div class="scorecard">
+      <div class="scorecard-header">
+        <span>🏷️ ${row.po} • ${row.style}</span>
+        <div class="row-actions">
+          <button class="icon-btn edit" onclick="editRecord('${row.id}')">✏️ Edit</button>
+          <button class="icon-btn delete" onclick="deleteRecord('${row.id}')">🗑️ Delete</button>
+        </div>
+      </div>
+      <div class="scorecard-body">
+        <div class="grid">
+          <div class="kv"><div class="k">Country</div><div class="v">${row.country}</div></div>
+          <div class="kv"><div class="k">Production Facility</div><div class="v">${row.productionFacility}</div></div>
+          <div class="kv"><div class="k">Product Type</div><div class="v">${row.productType}</div></div>
+          <div class="kv"><div class="k">Fabric Type</div><div class="v">${row.fabricType}</div></div>
+          <div class="kv"><div class="k">Fabric Name</div><div class="v">${row.fabricName}</div></div>
+          <div class="kv"><div class="k">Fabric Code</div><div class="v">${row.fabricCode}</div></div>
+          <div class="kv"><div class="k">Construction</div><div class="v">${row.fabricConstruction}</div></div>
+          <div class="kv"><div class="k">Weight (gsm)</div><div class="v">${row.fabricWeight}</div></div>
+          <div class="kv"><div class="k">Quantity</div><div class="v">${row.qty.toLocaleString()}</div></div>
+          <div class="kv"><div class="k">Production Steps</div><div class="v">${(row.steps || []).join(', ') || 'None'}</div></div>
+          <div class="kv"><div class="k">CO₂ Emission</div><div class="v">${row.co2} kg</div></div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function exportCsv() {
+  if (!state.rows.length) {
+    alert('No data to export');
+    return;
+  }
+
+  const headers = ['Country', 'Production Facility', 'PO No', 'Style Name', 'Product Type', 'Fabric Type', 'Fabric Name', 'Fabric Code', 'Fabric Construction', 'Fabric Weight (gsm)', 'Quantity', 'Production Steps', 'CO2 Emission (kg)'];
+  
+  const csvContent = [
+    headers.join(','),
+    ...state.rows.map(row => [
+      row.country, row.productionFacility, row.po, row.style, row.productType,
+      row.fabricType, row.fabricName, row.fabricCode, row.fabricConstruction,
+      row.fabricWeight, row.qty, (row.steps || []).join(';'), row.co2
+    ].map(field => `"${field}"`).join(','))
+  ].join('\n');
+
+  const blob = new Blob([csvContent], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `garment-dpp-${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importCsv() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.csv';
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const csv = e.target.result;
+        const lines = csv.split('\n').filter(line => line.trim());
+        const headers = lines[0].split(',').map(h => h.replace(/"/g, ''));
+        
+        const importedRows = lines.slice(1).map(line => {
+          const values = line.split(',').map(v => v.replace(/"/g, ''));
+          const steps = values[11] ? values[11].split(';') : [];
+          
+          return {
+            id: crypto.randomUUID(),
+            country: values[0] || 'Türkiye',
+            productionFacility: values[1] || 'Rabateks Main Factory',
+            po: values[2] || '',
+            style: values[3] || '',
+            productType: values[4] || 'Crew neck T-shirt',
+            fabricType: values[5] || 'Circular Knit',
+            fabricName: values[6] || '',
+            fabricCode: values[7] || '',
+            fabricConstruction: values[8] || 'Single Jersey',
+            fabricWeight: parseInt(values[9]) || 0,
+            qty: parseInt(values[10]) || 0,
+            steps: steps,
+            co2: parseFloat(values[12]) || 0
+          };
+        });
+
+        state.rows = [...importedRows, ...state.rows];
+        saveDB();
+        render();
+        alert(`Imported ${importedRows.length} records`);
+      } catch (error) {
+        alert('Error importing CSV: ' + error.message);
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+function downloadTemplate() {
+  const headers = ['Country', 'Production Facility', 'PO No', 'Style Name', 'Product Type', 'Fabric Type', 'Fabric Name', 'Fabric Code', 'Fabric Construction', 'Fabric Weight (gsm)', 'Quantity', 'Production Steps', 'CO2 Emission (kg)'];
+  const sampleRow = ['Türkiye', 'Rabateks Main Factory', 'PO-12345', 'SAMPLE-TSH', 'Crew neck T-shirt', 'Circular Knit', 'Single Jersey', 'SJ-180-KN', 'Single Jersey', '180', '1000', 'Cutting;Sewing;Quality Control;Packing', '3.6'];
+  
+  const csvContent = [
+    headers.join(','),
+    sampleRow.map(field => `"${field}"`).join(',')
+  ].join('\n');
+
+  const blob = new Blob([csvContent], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'garment-dpp-template.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function debugImport() {
+  const importData = localStorage.getItem('garment_dpp_import_data');
+  const importTimestamp = localStorage.getItem('garment_dpp_import_timestamp');
+  
+  console.log('=== DEBUG IMPORT ===');
+  console.log('Import data exists:', !!importData);
+  console.log('Import timestamp:', importTimestamp);
+  
+  if (importData) {
+    try {
+      const orders = JSON.parse(importData);
+      console.log('Orders count:', orders.length);
+      console.log('First order:', orders[0]);
+      alert(`Found ${orders.length} orders in import data. Check console for details.`);
+    } catch (error) {
+      console.error('Error parsing import data:', error);
+      alert('Error parsing import data: ' + error.message);
+    }
+  } else {
+    alert('No import data found in localStorage');
+  }
+}
+
+// === MAIN APP STATE & INIT ===
+let state = { rows: [], editing: null };
+
+function loadDB() {
+  const saved = localStorage.getItem('garmentDPP');
+  if (saved) state = JSON.parse(saved);
+}
+
+function saveDB() {
+  localStorage.setItem('garmentDPP', JSON.stringify(state));
+}
+
+// Initialize multi-select
+let stepsMS;
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', () => {
+  loadDB();
+  
+  // Check for auto-import on page load
+  checkAndImportOrders();
+  
+  stepsMS = new MultiSelect(document.getElementById('stepsMultiSelect'), {
+    placeholder: 'Select production steps...',
+    onChange: (values) => console.log('Steps selected:', values)
+  });
+
+  document.getElementById('addBtn').onclick = addRecord;
+  document.getElementById('clearBtn').onclick = clearForm;
+  document.getElementById('saveChangesBtn').onclick = saveChanges;
+  document.getElementById('cancelEditBtn').onclick = cancelEdit;
+  document.getElementById('exportCsvBtn').onclick = exportCsv;
+  document.getElementById('importCsvBtn').onclick = importCsv;
+  document.getElementById('templateCsvBtn').onclick = downloadTemplate;
+  document.getElementById('debugImportBtn').onclick = debugImport;
+  document.getElementById('importOrdersBtn').onclick = manualImportOrders; // NEW
+  document.getElementById('genCodeBtn').onclick = generateCode;
+
+  // Auto-calculate CO2 when relevant fields change
+  document.getElementById('fabricWeight').oninput = calculateCO2;
+  document.getElementById('qty').oninput = calculateCO2;
+  document.getElementById('productType').onchange = calculateCO2;
+
+  render();
+});
+</script>
+</body>
+</html>

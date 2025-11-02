@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Rabateks DPP System{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+
+<!-- ICON LIBRARIES -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<!-- END ICON LIBRARIES -->
+
+</head>
+<body>
+<div id="zpp-head" style="text-align:center;margin:10px 0 12px 0;"><h1 style="margin:0 0 6px 0;font-weight:700;"><span style="color:#00062e">Zero</span><span class="dpp-title" style="color:#f9ba00">@</span><span style="color:#00062e">Production</span> <span class="dpp-title" style="color:#f9ba00">DPP</span> <span style="color:#00062e">Dashboard</span></h1><p class="subtitle" style="margin:4px 0 0 0;font-weight:600;color:#02154e;">Digital Product Passport • Energy Monitoring • Water Management • Utility Optimization</p></div>
+<div id="brand-logo" style="position:absolute;left:24px;top:12px;z-index:9999;"><img src="../../../../../assets/img/zaplogo.svg?v=4" alt="Zero@Production" style="height:84px;width:auto;"></div>
+
+<!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('main.dashboard') }}">
+                <i class="fas fa-leaf me-2"></i>Rabateks DPP
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.dashboard') }}">
+                            <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('garment.index') }}">
+                            <i class="fas fa-tshirt me-1"></i>Garment DPP
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('orders.index') }}">
+                            <i class="fas fa-box me-1"></i>Orders
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('orders.random_creator') }}">
+                            <i class="fas fa-dice me-1"></i>Random Creator
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <span class="navbar-text">
+                            <i class="fas fa-clock me-1"></i>
+                            <span id="current-time"></span>
+                        </span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container-fluid py-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-light py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2024 Rabateks Digital Product Passport System</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <p class="mb-0">
+                        <i class="fas fa-code me-1"></i>Version 1.0.0
+                        <span class="ms-3">
+                            <i class="fas fa-database me-1"></i>
+                            <span id="db-status" class="badge bg-success">Connected</span>
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

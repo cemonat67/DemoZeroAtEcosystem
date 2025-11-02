@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        :root {
+            --primary: #005530;
+            --primary-light: #007040;
+            --secondary: #0A1D3D;
+            --accent: #f9ba00;
+            --accent-light: #ffd04d;
+            --light: #f8f9fa;
+            --medium: #e9ecef;
+            --dark: #333;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            margin: 0;
+            padding: 20px;
+            color: var(--dark);
+        }
+        h1 {
+            text-align: center;
+            color: var(--secondary);
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        .module {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 8px solid var(--accent);
+        }
+        .module h2 {
+            color: var(--primary);
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+        }
+        .module h2 .fas {
+            margin-right: 10px;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 2px solid var(--medium);
+            border-radius: 5px;
+            box-sizing: border-box; 
+        }
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        button {
+            background: var(--primary);
+            color: #fff;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: var(--primary-light);
+        }
+        .results {
+            margin-top: 15px;
+            background: var(--light);
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid var(--medium);
+            font-weight: bold;
+            color: var(--secondary);
+        }
+        canvas {
+            margin-top: 40px;
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .multiselect-container {
+            position: relative;
+            margin-bottom: 10px;
+        }
+        .select-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border: 2px solid var(--medium);
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .select-box.open {
+            border-color: var(--primary);
+        }
+        .checkbox-container {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            border: 2px solid var(--medium);
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+            max-height: 250px;
+            overflow-y: auto;
+            z-index: 10;
+        }
+        .checkbox-container.visible {
+            display: block;
+        }
+        .checkbox-container label {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-weight: normal;
+        }
+        .checkbox-container label:hover {
+            background-color: var(--light);
+        }
+        .checkbox-container input[type="checkbox"] {
+            margin-right: 10px;
+            width: auto;
+            flex-shrink: 0;
+        }
+        .tag-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+            padding-top: 5px;
+            min-height: 10px;
+        }
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 12px;
+            font-size: 0.9em;
+            color: #fff;
+            background-color: var(--secondary);
+            border-radius: 16px;
+        }
+        .tag-remove {
+            margin-left: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.2em;
+            line-height: 1;
+        }
+        .tag-remove:hover {
+            color: var(--accent-light);
+        }
+        .save-section {
+            text-align: center;
+            margin: 30px 0;
+        }
+        #saveFabric {
+            background: var(--accent);
+            color: var(--secondary);
+            font-weight: bold;
+            padding: 15px 30px;
+            font-size: 18px;
+            transition: transform 0.3s ease;
+        }
+        #saveFabric:hover {
+            background: var(--accent-light);
+            transform: scale(1.05);
+        }
+        .fabric-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+        .fabric-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-top: 5px solid var(--primary);
+            position: relative;
+        }
+        .fabric-card h3 {
+            margin-top: 0;
+            color: var(--primary);
+            border-bottom: 1px solid var(--medium);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        .fabric-card p {
+            margin: 8px 0;
+        }
+        .fabric-card .process-title {
+            font-weight: bold;
+            color: var(--secondary);
+            margin-top: 10px;
+        }
+        .fabric-card .processes {
+            font-size: 0.9em;
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+        .fabric-card .co2 {
+            font-weight: bold;
+            color: #d32f2f;
+            background: #ffebee;
+            padding: 5px 10px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        .delete-card {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            color: #d32f2f;
+            cursor: pointer;
+            font-size: 1.5em;
+        }
+        .no-data {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            padding: 20px;
+        }
+    
+.logo-title {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  justify-content: flex-start;
+}
+.logo {
+  height: 60px;
+  width: auto;
+}
+.rabateks {
+  color: var(--primary);
+  font-weight: bold;
+}
+.dpp {
+  color: var(--accent);
+  font-weight: bold;
+}
+.dashboard-title {
+  font-size: 1.2rem;
+  font-weight: normal;
+  color: var(--secondary);
+}
+
+</style>
+
+<!-- ICON LIBRARIES -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<!-- END ICON LIBRARIES -->
+
+<style id="zplogo-style">
+  .zplogo-wrap{position:absolute;left:24px;top:12px;z-index:10;pointer-events:none}
+  .zplogo-wrap img{height:84px;width:auto;display:block}
+  @media (max-width:768px){ .zplogo-wrap img{height:64px} }
+</style>
+<style id="fixed-header-140">
+  .header, .main-header {
+    height: 140px !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0;
+    margin: 0;
+  }
+  .header img, .main-header img {
+    height: 84px !important;
+    width: auto;
+    margin-bottom: 8px;
+  }
+  .header h1, .main-header h1 {
+    font-size: 2rem !important;
+    margin: 4px 0;
+  }
+  .header p, .main-header p {
+    font-size: 1.1rem !important;
+    margin: 2px 0;
+  }
+</style>
+<style id="zpp-header-140">
+  .header, .main-header {
+    height: 140px !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0;
+    margin: 0;
+  }
+  .header img, .main-header img {
+    height: 84px !important;
+    width: auto;
+    margin-bottom: 8px;
+  }
+  .header h1, .main-header h1 {
+    font-size: 2rem !important;
+    margin: 4px 0;
+  }
+  .header p, .main-header p {
+    font-size: 1.1rem !important;
+    margin: 2px 0;
+  }
+  @media (max-width:768px){
+    .header, .main-header{height:110px !important;}
+    .header img, .main-header img{height:64px !important;}
+  }
+</style>
+</head>
+<body>
+<div class="zplogo-wrap"><img src="assets/img/zaplogo.svg" alt="Zero@Production"></div>
+
+<header>
+  <style>
+    .back-button {
+      background-color: #005530;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: bold;
+      text-decoration: none;
+      display: inline-block;
+      transition: background-color 0.3s ease;
+    }
+    .back-button:hover {
+      background-color: #007040;
+    }
+  </style>
+  <div style="text-align:right; margin: 10px 20px;">
+    <a href="index.html" class="back-button">
+      ← Back to Main Dashboard
+    </a>
+  </div>
+
+  <div class="logo-title">
+    
+    <div>
+      <h2 class="dashboard-title"></h2>
+    </div>
+  </div>
+</header>
+
+    <div class="container">
+        <div class="module">
+            <h2><i class="fas fa-tag"></i> Fabric Information</h2>
+            <label for="fabricName">Fabric Name:</label>
+            <input type="text" id="fabricName" placeholder="e.g., Organic Cotton, Polyester Blend">
+        </div>
+
+        <div class="module">
+            <h2><i class="fas fa-tint"></i> Dyeing</h2>
+            <label for="dyeTypeContainer">Select Dyeing Process(es):</label>
+            <div class="multiselect-container" id="dyeTypeContainer">
+                <div class="select-box" onclick="toggleDropdown('dyeTypeContainer')">
+                    <span id="dyeSelectionText">Select one or more processes...</span>
+                    <i class="fas fa-caret-down"></i>
+                </div>
+                <div class="checkbox-container">
+                    <label><input type="checkbox" value="1.5"> Vat Dyeing</label>
+                    <label><input type="checkbox" value="3.5"> Disperse Dyeing</label>
+                    <label><input type="checkbox" value="2.8"> Acid Dyeing</label>
+                    <label><input type="checkbox" value="2.5"> Direct Dyeing</label>
+                    <label><input type="checkbox" value="3.2"> Sulfur Dyeing</label>
+                    <label><input type="checkbox" value="1.2"> Pigment Dyeing</label>
+                    <label><input type="checkbox" value="0.2"> Solution Dyeing</label>
+                    <label><input type="checkbox" value="2.7"> Space Dyeing</label>
+                    <label><input type="checkbox" value="19.0"> Yarn Dyeing</label>
+                    <label><input type="checkbox" value="21.0"> Piece Dyeing</label>
+                    <label><input type="checkbox" value="2.5"> Garment Dyeing</label>
+                </div>
+            </div>
+            
+            <label for="dyeWeight">Fabric Weight (kg):</label>
+            <input type="number" id="dyeWeight" placeholder="e.g., 100">
+            <button onclick="calculateCO2('dyeTypeContainer','dyeWeight','dyeResult')">Calculate CO₂</button>
+            
+        </div>
+
+        <div class="module">
+            <h2><i class="fas fa-print"></i> Printing</h2>
+            <label for="printTypeContainer">Select Printing Process(es):</label>
+            <div class="multiselect-container" id="printTypeContainer">
+                <div class="select-box" onclick="toggleDropdown('printTypeContainer')">
+                    <span id="printSelectionText">Select one or more processes...</span>
+                    <i class="fas fa-caret-down"></i>
+                </div>
+                <div class="checkbox-container">
+                    <label><input type="checkbox" value="2.5"> Screen Printing</label>
+                    <label><input type="checkbox" value="1.5"> Digital Printing</label>
+                    <label><input type="checkbox" value="2.0"> Rotary Screen Printing</label>
+                    <label><input type="checkbox" value="0.5"> Block Printing</label>
+                    <label><input type="checkbox" value="1.0"> Sublimation Printing</label>
+                    <label><input type="checkbox" value="3.0"> Discharge Printing</label>
+                    <label><input type="checkbox" value="1.1"> Heat Transfer Printing</label>
+                    <label><input type="checkbox" value="1.2"> Pigment Printing</label>
+                    <label><input type="checkbox" value="2.2"> Reactive Printing</label>
+                    <label><input type="checkbox" value="0.8"> Foil Printing</label>
+                    <label><input type="checkbox" value="0.9"> Flock Printing</label>
+                    <label><input type="checkbox" value="2.5"> Burn-out Printing</label>
+                    <label><input type="checkbox" value="1.5"> Inkjet Textile Printing</label>
+                </div>
+            </div>
+            
+            <label for="printWeight">Fabric Weight (kg):</label>
+            <input type="number" id="printWeight" placeholder="e.g., 100">
+            <button onclick="calculateCO2('printTypeContainer','printWeight','printResult')">Calculate CO₂</button>
+            
+        </div>
+
+        <div class="module">
+            <h2><i class="fas fa-wind"></i> Finishing</h2>
+            <label for="finishTypeContainer">Select Finishing Process(es):</label>
+            <div class="multiselect-container" id="finishTypeContainer">
+                <div class="select-box" onclick="toggleDropdown('finishTypeContainer')">
+                    <span id="finishSelectionText">Select one or more processes...</span>
+                    <i class="fas fa-caret-down"></i>
+                </div>
+                <div class="checkbox-container">
+                    <label><input type="checkbox" value="0.2"> Singeing</label>
+                    <label><input type="checkbox" value="1.0"> Desizing</label>
+                    <label><input type="checkbox" value="2.5"> Scouring</label>
+                    <label><input type="checkbox" value="2.0"> Bleaching</label>
+                    <label><input type="checkbox" value="3.0"> Mercerizing</label>
+                    <label><input type="checkbox" value="1.8"> Heat Setting</label>
+                    <label><input type="checkbox" value="0.15"> Sanforizing</label>
+                    <label><input type="checkbox" value="0.1"> Brushing</label>
+                    <label><input type="checkbox" value="0.2"> Sueding</label>
+                    <label><input type="checkbox" value="0.2"> Calendaring</label>
+                    <label><input type="checkbox" value="0.3"> Raising</label>
+                    <label><input type="checkbox" value="0.25"> Compaction</label>
+                    <label><input type="checkbox" value="0.4"> Bio-Polishing</label>
+                    <label><input type="checkbox" value="0.5"> Softening Finish</label>
+                    <label><input type="checkbox" value="0.3"> Anti-Pilling Finish</label>
+                    <label><input type="checkbox" value="1.2"> Wrinkle-Resistant Finish</label>
+                    <label><input type="checkbox" value="5.0"> Water-Repellent Finish</label>
+                    <label><input type="checkbox" value="3.5"> Flame-Retardant Finish</label>
+                    <label><input type="checkbox" value="0.5"> Antibacterial Finish</label>
+                    <label><input type="checkbox" value="0.6"> UV Protection Finish</label>
+                    <label><input type="checkbox" value="0.2"> Anti-Static Finish</label>
+                    <label><input type="checkbox" value="0.8"> Soil Release Finish</label>
+                    <label><input type="checkbox" value="0.1"> Fragrance Finish</label>
+                    <label><input type="checkbox" value="0.7"> Insect Repellent Finish</label>
+                    <label><input type="checkbox" value="0.4"> Aloe Vera Finish</label>
+                    <label><input type="checkbox" value="0.3"> Deodorizing Finish</label>
+                    <label><input type="checkbox" value="1.5"> Nano-Coating</label>
+                    <label><input type="checkbox" value="1.2"> Resin Finish</label>
+                    <label><input type="checkbox" value="4.0"> Coating & Lamination</label>
+                    <label><input type="checkbox" value="0.8"> Plasma Treatment</label>
+                </div>
+            </div>
+            
+            <label for="finishWeight">Fabric Weight (kg):</label>
+            <input type="number" id="finishWeight" placeholder="e.g., 100">
+            <button onclick="calculateCO2('finishTypeContainer','finishWeight','finishResult')">Calculate CO₂</button>
+            
+        </div>
+
+        <div class="save-section">
+            <button id="saveFabric" onclick="saveFabric()">
+                <i class="fas fa-save"></i> Save Fabric
+            </button>
+        </div>
+
+        <canvas id="processChart" width="400" height="200"></canvas>
+
+        
+    </div>
+
+    <script>
+        // Dropdown Fonksiyonları
+        function toggleDropdown(containerId) {
+            const container = document.getElementById(containerId);
+            container.querySelector('.checkbox-container').classList.toggle('visible');
+            container.querySelector('.select-box').classList.toggle('open');
+        }
+
+        function removeTagAndUncheck(containerId, textId, tagsId, checkboxValue) {
+            const container = document.getElementById(containerId);
+            const checkboxToUncheck = container.querySelector(`input[value="${checkboxValue}"]`);
+            if (checkboxToUncheck) {
+                checkboxToUncheck.checked = false;
+            }
+            updateSelection(containerId, textId, tagsId);
+        }
+
+        function updateSelection(containerId, textId, tagsId) {
+            const container = document.getElementById(containerId);
+            const checkboxes = container.querySelectorAll('input[type="checkbox"]:checked');
+            const textElement = document.getElementById(textId);
+            const tagsContainer = document.getElementById(tagsId);
+
+            if (checkboxes.length === 0) {
+                textElement.textContent = "Select one or more processes...";
+            } else if (checkboxes.length === 1) {
+                textElement.textContent = "1 process selected";
+            } else {
+                textElement.textContent = `${checkboxes.length} processes selected`;
+            }
+
+            tagsContainer.innerHTML = '';
+
+            checkboxes.forEach(checkbox => {
+                const tag = document.createElement('div');
+                tag.className = 'tag';
+                const labelText = checkbox.parentElement.textContent.trim();
+                const checkboxValue = checkbox.value;
+                tag.innerHTML = `
+                    ${labelText}
+                    <span class="tag-remove" onclick="removeTagAndUncheck('${containerId}', '${textId}', '${tagsId}', '${checkboxValue}')">&times;</span>
+                `;
+                tagsContainer.appendChild(tag);
+            });
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.closest('.multiselect-container')) {
+                const allContainers = document.querySelectorAll('.multiselect-container');
+                allContainers.forEach(container => {
+                    container.querySelector('.checkbox-container').classList.remove('visible');
+                    container.querySelector('.select-box').classList.remove('open');
+                });
+            }
+        }
+        
+        // CO2 Hesaplama
+        function calculateCO2(typeId, weightId, resultId) {
+            const typeElement = document.getElementById(typeId);
+            const weightInput = document.getElementById(weightId);
+            const weight = parseFloat(weightInput.value);
+            const resultDiv = document.getElementById(resultId);
+
+            if (isNaN(weight) || weight <= 0) {
+                resultDiv.innerText = "Please enter a valid weight.";
+                return;
+            }
+
+            let totalEmissionFactor = 0;
+            const checkedBoxes = typeElement.querySelectorAll('input[type="checkbox"]:checked');
+            
+            if (checkedBoxes.length === 0) {
+                resultDiv.innerText = "Please select at least one process.";
+                return;
+            }
+
+            checkedBoxes.forEach(checkbox => {
+                totalEmissionFactor += parseFloat(checkbox.value);
+            });
+
+            const result = (totalEmissionFactor * weight).toFixed(2);
+            resultDiv.innerText = `Estimated CO₂ Emission: ${result} kg CO₂`;
+        }
+
+        // Kumaş Kaydetme ve Form Sıfırlama
+        function saveFabric() {
+            const fabricName = document.getElementById('fabricName').value.trim();
+            if (!fabricName) {
+                alert("Please enter a fabric name first!");
+                return;
+            }
+
+            const processes = {
+                dyeing: {
+                    types: getSelectedLabels('dyeTypeContainer'),
+                    weight: document.getElementById('dyeWeight').value,
+                    result: document.getElementById('dyeResult').innerText
+                },
+                printing: {
+                    types: getSelectedLabels('printTypeContainer'),
+                    weight: document.getElementById('printWeight').value,
+                    result: document.getElementById('printResult').innerText
+                },
+                finishing: {
+                    types: getSelectedLabels('finishTypeContainer'),
+                    weight: document.getElementById('finishWeight').value,
+                    result: document.getElementById('finishResult').innerText
+                }
+            };
+
+            const fabricData = {
+                id: Date.now(),
+                name: fabricName,
+                date: new Date().toLocaleDateString('en-GB', { 
+                    day: '2-digit', 
+                    month: '2-digit', 
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                }),
+                processes: processes
+            };
+
+            let savedFabrics = JSON.parse(localStorage.getItem('savedFabrics')) || [];
+            savedFabrics.unshift(fabricData);
+            localStorage.setItem('savedFabrics', JSON.stringify(savedFabrics));
+
+            displaySavedFabrics();
+            alert(`${fabricName} saved successfully!`);
+            
+            // FORM SIFIRLAMA
+            resetForm();
+        }
+
+        function resetForm() {
+            // Fabric Name sıfırlama
+            document.getElementById('fabricName').value = '';
+            
+            // Tüm modülleri sıfırlama
+            resetModule('dyeTypeContainer', 'dyeSelectionText', 'dye-tags-container', 'dyeWeight', 'dyeResult');
+            resetModule('printTypeContainer', 'printSelectionText', 'print-tags-container', 'printWeight', 'printResult');
+            resetModule('finishTypeContainer', 'finishSelectionText', 'finish-tags-container', 'finishWeight', 'finishResult');
+        }
+
+        function resetModule(containerId, textId, tagsId, weightId, resultId) {
+            // Seçimleri sıfırla
+            const container = document.getElementById(containerId);
+            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            
+            // Seçim metnini sıfırla
+            document.getElementById(textId).textContent = "Select one or more processes...";
+            
+            // Etiketleri temizle
+            document.getElementById(tagsId).innerHTML = '';
+            
+            // Ağırlık alanını sıfırla
+            document.getElementById(weightId).value = '';
+            
+            // Sonuçları temizle
+            document.getElementById(resultId).innerText = '';
+        }
+
+        function getSelectedLabels(containerId) {
+            const container = document.getElementById(containerId);
+            const checkboxes = container.querySelectorAll('input[type="checkbox"]:checked');
+            return Array.from(checkboxes).map(cb => cb.parentElement.textContent.trim());
+        }
+
+        function displaySavedFabrics() {
+            const container = document.getElementById('fabricCardsContainer');
+            const savedFabrics = JSON.parse(localStorage.getItem('savedFabrics')) || [];
+            
+            if (savedFabrics.length === 0) {
+                container.innerHTML = '<div class="no-data">No saved fabrics yet. Calculate and save your first fabric!</div>';
+                return;
+            }
+
+            container.innerHTML = savedFabrics.map(fabric => `
+                <div class="fabric-card">
+                    <span class="delete-card" onclick="deleteFabric(${fabric.id})">&times;</span>
+                    <h3>${fabric.name}</h3>
+                    <p><small>Saved: ${fabric.date}</small></p>
+                    
+                    ${fabric.processes.dyeing.types.length > 0 ? `
+                        <p class="process-title">Dyeing Processes:</p>
+                        <p class="processes">${fabric.processes.dyeing.types.join(', ')}</p>
+                        <p class="co2">${fabric.processes.dyeing.result || 'Not calculated'}</p>
+                    ` : ''}
+                    
+                    ${fabric.processes.printing.types.length > 0 ? `
+                        <p class="process-title">Printing Processes:</p>
+                        <p class="processes">${fabric.processes.printing.types.join(', ')}</p>
+                        <p class="co2">${fabric.processes.printing.result || 'Not calculated'}</p>
+                    ` : ''}
+                    
+                    ${fabric.processes.finishing.types.length > 0 ? `
+                        <p class="process-title">Finishing Processes:</p>
+                        <p class="processes">${fabric.processes.finishing.types.join(', ')}</p>
+                        <p class="co2">${fabric.processes.finishing.result || 'Not calculated'}</p>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        function deleteFabric(id) {
+            let savedFabrics = JSON.parse(localStorage.getItem('savedFabrics')) || [];
+            savedFabrics = savedFabrics.filter(fabric => fabric.id !== id);
+            localStorage.setItem('savedFabrics', JSON.stringify(savedFabrics));
+            displaySavedFabrics();
+        }
+
+        // Grafik
+        const ctx = document.getElementById('processChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Piece Dyeing (Avg.)', 'Digital Printing', 'Water-Repellent Finish'],
+                datasets: [{
+                    label: 'Avg. CO₂ Emission (kg/kg of fabric)',
+                    data: [21.0, 1.5, 5.0],
+                    backgroundColor: ['#005530', '#0A1D3D', '#f9ba00'],
+                    borderColor: ['#007040', '#02154e', '#ffd04d'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: { y: { beginAtZero: true, title: { display: true, text: 'CO₂ Emission (kg/kg of fabric)' }}},
+                plugins: {
+                    title: { display: true, text: 'Average CO₂ Emissions by Process Type', font: { size: 18 }},
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) { label += ': '; }
+                                if (context.parsed.y !== null) { label += context.parsed.y + ' kg CO₂e'; }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Sayfa yüklendiğinde kayıtlı kumaşları göster
+        document.addEventListener('DOMContentLoaded', displaySavedFabrics);
+    </script>
+</body>
+</html>

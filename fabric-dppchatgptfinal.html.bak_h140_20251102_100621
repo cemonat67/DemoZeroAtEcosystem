@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rabateks - </title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary: #005530;
+            --primary-light: #007040;
+            --secondary: #0A1D3D;
+            --navy: #02154e;
+            --accent: #f9ba00;
+            --accent-light: #ffd04d;
+            --light: #f8f9fa;
+            --medium: #e9ecef;
+            --dark: #333;
+            --danger: #D51635;
+            --success: #28a745;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            color: var(--dark);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 25px;
+        }
+        
+        header {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 25px 0;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--secondary);
+            background: white;
+            color: black;
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo-container {
+            flex-shrink: 0;
+        }
+        
+        .logo-container svg {
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+        }
+        
+        .company-name {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .rabateks-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #005530;
+            font-family: serif;
+            font-style: italic;
+            letter-spacing: 1px;
+        }
+        
+        .title-section {
+            flex: 1;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #02154e;
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            color: var(--dark);
+            font-size: 1.3rem;
+            font-weight: 500;
+        }
+        
+        /* Fabric Calculator Styles - Main area */
+        .fabric-calculator-main {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--medium);
+            margin-bottom: 25px;
+            grid-column: 1 / -1;
+        }
+        
+        .fabric-calculator-main .calculator-header {
+            background: var(--accent);
+            color: white;
+            padding: 18px 25px;
+            font-size: 1.4rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+        
+        .fabric-calculator-main .calculator-header i {
+            margin-right: 12px;
+            font-size: 1.6rem;
+        }
+        
+        .fabric-calculator-main .calculator-body {
+            padding: 25px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 25px;
+        }
+        
+        .fabric-inputs-container {
+            /* First column - inputs */
+        }
+        
+        .fabric-inputs-header {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-bottom: 15px;
+            font-weight: 600;
+            color: var(--secondary);
+            font-size: 1rem;
+            padding: 0 5px;
+        }
+        
+        .fabric-row {
+            margin-bottom: 15px;
+        }
+        
+        .fabric-row label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--secondary);
+            font-size: 0.95rem;
+        }
+        
+        .fabric-row select,
+        .fabric-row input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--medium);
+            border-radius: 8px;
+            background: white;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+        
+        .fabric-row select:focus,
+        .fabric-row input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 85, 48, 0.1);
+        }
+        
+        .yarn-selections {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 85, 48, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(0, 85, 48, 0.2);
+        }
+        
+        .yarn-selections h4 {
+            color: var(--secondary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .yarn-selections h4:before {
+            content: "🧵";
+            margin-right: 8px;
+        }
+        
+        .yarn-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+            align-items: end;
+        }
+        
+        .fabric-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .fabric-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .fabric-btn.calculate {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .fabric-btn.reset {
+            background: var(--light);
+            color: var(--dark);
+            border: 1px solid var(--medium);
+        }
+        
+        .fabric-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        /* Save Fabric Section */
+        .fabric-save-section {
+            margin-top: 0;
+            padding: 20px;
+            background: rgba(0, 85, 48, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(0, 85, 48, 0.2);
+            height: fit-content;
+        }
+        
+        .fabric-name-input {
+            margin-bottom: 15px;
+        }
+        
+        .fabric-name-input label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--secondary);
+            font-size: 0.95rem;
+        }
+        
+        .fabric-name-input input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--medium);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .fabric-name-input input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 85, 48, 0.1);
+        }
+        
+        .fabric-btn.save {
+            background: var(--primary);
+            color: white;
+            width: 100%;
+        }
+        
+        .fabric-btn.save:hover {
+            background: var(--primary-light);
+        }
+        
+        /* Fabric Results */
+        .fabric-results {
+            margin-top: 0;
+        }
+        
+        .fabric-result-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--accent);
+        }
+        
+        .fabric-result-header {
+            background: var(--accent);
+            color: white;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .fabric-result-type {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .fabric-result-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .fabric-result-origin {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+        
+        .fabric-result-body {
+            padding: 20px;
+        }
+        
+        .fabric-result-structure {
+            color: var(--secondary);
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        
+        .fabric-composition {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(249, 186, 0, 0.08);
+            border-radius: 8px;
+            border: 1px solid rgba(249, 186, 0, 0.2);
+        }
+        
+        .composition-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--secondary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .composition-title:before {
+            content: "🧵";
+            margin-right: 8px;
+        }
+        
+        .composition-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .composition-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 6px;
+            border-left: 4px solid var(--accent);
+        }
+        
+        .composition-yarn-name {
+            font-weight: 500;
+            color: var(--secondary);
+        }
+        
+        .composition-percentage {
+            font-weight: 700;
+            color: var(--accent);
+            font-size: 1.1rem;
+        }
+        
+        .fabric-result-metrics {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .fabric-result-metric {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            flex: 1;
+            margin: 0 5px;
+            background: rgba(249, 186, 0, 0.1);
+            border: 1px solid rgba(249, 186, 0, 0.3);
+        }
+        
+        .fabric-result-metric-title {
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            color: #6c757d;
+        }
+        
+        .fabric-result-metric-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .fabric-result-score-bar {
+            height: 8px;
+            background: var(--medium);
+            border-radius: 4px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        .fabric-result-score-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 4px;
+        }
+        
+        .fabric-result-footer {
+            padding: 15px 20px;
+            background: rgba(249, 186, 0, 0.05);
+            border-top: 1px solid rgba(249, 186, 0, 0.2);
+            text-align: center;
+            color: var(--secondary);
+            font-weight: 500;
+        }
+        
+        .sidebar {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+            height: fit-content;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+        
+        .search-box {
+            margin-bottom: 0;
+            position: relative;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 12px 20px 12px 45px;
+            border: 2px solid var(--medium);
+            border-radius: 50px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 85, 48, 0.2);
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+        
+        .category-filter {
+            margin-bottom: 0;
+        }
+        
+        .category-title {
+            font-size: 1.2rem;
+            color: var(--secondary);
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--medium);
+            display: flex;
+            align-items: center;
+        }
+        
+        .category-title i {
+            margin-right: 10px;
+            color: var(--primary);
+        }
+        
+        .category-list {
+            list-style: none;
+        }
+        
+        .category-item {
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .category-item:hover {
+            background: rgba(0, 85, 48, 0.05);
+        }
+        
+        .category-item.active {
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+        
+        .category-count {
+            background: var(--medium);
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+        
+        .active .category-count {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .main-content {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+        }
+        
+        .filters {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--medium);
+        }
+        
+        .results-info {
+            font-size: 1.1rem;
+            color: var(--secondary);
+            font-weight: 500;
+        }
+        
+        .sort-filter select {
+            padding: 10px 15px;
+            border: 2px solid var(--medium);
+            border-radius: 8px;
+            background: white;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        
+        .sort-filter select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .fabric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+        
+        .fabric-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid var(--medium);
+            display: flex;
+            flex-direction: column;
+            min-height: 480px;
+        }
+        
+        .fabric-header {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            position: relative;
+        }
+        
+        .fabric-type {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .fabric-name {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .fabric-origin {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+        
+        .fabric-body {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .fabric-structure {
+            color: var(--secondary);
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        
+        .metrics {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .metric {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            flex: 1;
+            margin: 0 5px;
+        }
+        
+        .metric.co2 {
+            background: rgba(0, 85, 48, 0.08);
+            border: 1px solid rgba(0, 85, 48, 0.2);
+        }
+        
+        .metric.score {
+            background: rgba(10, 29, 61, 0.08);
+            border: 1px solid rgba(10, 29, 61, 0.2);
+        }
+        
+        .metric-title {
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            color: #6c757d;
+        }
+        
+        .metric-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+        
+        .co2-value {
+            color: var(--primary);
+        }
+        
+        .score-value {
+            color: var(--secondary);
+        }
+        
+        .score-bar {
+            height: 8px;
+            background: var(--medium);
+            border-radius: 4px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        .score-fill {
+            height: 100%;
+            background: var(--secondary);
+            border-radius: 4px;
+        }
+        
+        .badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            background: rgba(0, 85, 48, 0.1);
+            color: var(--primary);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .badge.eco {
+            background: rgba(40, 167, 69, 0.15);
+            color: var(--success);
+        }
+        
+        .badge.synthetic {
+            background: rgba(213, 22, 53, 0.1);
+            color: var(--danger);
+        }
+        
+        .fabric-footer {
+            padding: 15px 20px;
+            background: var(--light);
+            border-top: 1px solid var(--medium);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .fabric-uses {
+            font-size: 0.95rem;
+            color: #6c757d;
+        }
+        
+        .detail-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        
+        .detail-btn:hover {
+            background: var(--primary-light);
+        }
+        
+        .chart-container {
+            margin-top: 30px;
+            padding: 20px;
+            background: var(--light);
+            border-radius: 12px;
+        }
+        
+        .chart-title {
+            text-align: center;
+            color: var(--secondary);
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+        
+        /* Clear Custom Fabrics Button */
+        .clear-custom-fabrics-btn {
+            width: 100%;
+            padding: 8px 12px;
+            margin-top: 10px;
+            background: rgba(213, 22, 53, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(213, 22, 53, 0.3);
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        
+        .clear-custom-fabrics-btn:hover {
+            background: rgba(213, 22, 53, 0.2);
+            border-color: rgba(213, 22, 53, 0.5);
+        }
+        
+        .clear-custom-fabrics-btn i {
+            font-size: 0.8rem;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1100px) { .container { grid-template-columns: 250px 1fr; } .fabric-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); } .fabric-calculator-main .calculator-body { grid-template-columns: 1fr 1fr; gap: 20px; } .fabric-results { grid-column: 1 / -1; } } @media (max-width: 900px) { .container { grid-template-columns: 1fr; } .sidebar { margin-bottom: 25px; } .fabric-calculator-main .calculator-body { grid-template-columns: 1fr; gap: 20px; } .header-content { flex-direction: column; gap: 20px; text-align: center; } .logo-section { justify-content: center; } h1 { font-size: 2.2rem; } .subtitle { font-size: 1.1rem; } } @media (max-width: 600px) { .filters { flex-direction: column; align-items: flex-start; gap: 15px; } .fabric-grid { grid-template-columns: 1fr; } .yarn-row { grid-template-columns: 1fr; gap: 8px; } .fabric-actions { flex-direction: column; } .fabric-save-section { padding: 15px; } .fabric-name-input input { font-size: 16px; } .composition-item { flex-direction: column; align-items: flex-start; gap: 8px; } .composition-percentage { align-self: flex-end; font-size: 1.3rem; } .header-content { padding: 0 15px; } .logo-container svg { width: 50px; height: 50px; } .rabateks-text { font-size: 1.4rem; } h1 { font-size: 1.8rem; } .subtitle { font-size: 1rem; } }
+    
+.logo-title {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  justify-content: flex-start;
+}
+.logo {
+  height: 60px;
+  width: auto;
+}
+.rabateks {
+  color: var(--primary);
+  font-weight: bold;
+}
+.dpp {
+  color: var(--accent);
+  font-weight: bold;
+}
+.dashboard-title {
+  font-size: 1.2rem;
+  font-weight: normal;
+  color: var(--secondary);
+}
+
+</style>
+
+<!-- ICON LIBRARIES -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<!-- END ICON LIBRARIES -->
+
+<style id="zplogo-style">
+  .zplogo-wrap{position:absolute;left:24px;top:12px;z-index:10;pointer-events:none}
+  .zplogo-wrap img{height:84px;width:auto;display:block}
+  @media (max-width:768px){ .zplogo-wrap img{height:64px} }
+</style>
+<style id="fixed-header-140">
+  .header, .main-header {
+    height: 140px !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0;
+    margin: 0;
+  }
+  .header img, .main-header img {
+    height: 84px !important;
+    width: auto;
+    margin-bottom: 8px;
+  }
+  .header h1, .main-header h1 {
+    font-size: 2rem !important;
+    margin: 4px 0;
+  }
+  .header p, .main-header p {
+    font-size: 1.1rem !important;
+    margin: 2px 0;
+  }
+</style>
+</head>
+<body>
+<div class="zplogo-wrap"><img src="assets/img/zaplogo.svg" alt="Zero@Production"></div>
+
+<div style="text-align:right;margin:16px 24px;">
+  <a href="index.html" class="btn btn-success" style="
+    background-color:#006838;
+    color:white;
+    padding:10px 22px;
+    border-radius:6px;
+    font-weight:600;
+    text-decoration:none;
+  ">← Back to Main Dashboard</a>
+</div>
+
+</div>
+</header>
+
+        
+        <div class="fabric-calculator-main">
+            <div class="calculator-header">
+                <i class="fas fa-layer-group"></i>
+                <span>Calculate Fabric Impact</span>
+            </div>
+            <div class="calculator-body">
+                <div class="fabric-inputs-container">
+                    <div class="fabric-inputs-header">
+                        <div>Fabric Configuration</div>
+                    </div>
+                    <div class="fabric-row">
+                        <label for="fabricType">Fabric Type:</label>
+                        <select id="fabricType">
+                            <option value="">Select fabric type</option>
+                            <option value="Woven">Woven</option>
+                            <option value="Circular Knit">Circular Knit</option>
+                            <option value="Flat Knit">Flat Knit</option>
+                            <option value="Nonwoven">Nonwoven</option>
+                        </select>
+                    </div>
+                    <div class="fabric-row">
+                        <label for="fabricConstruction">Construction:</label>
+                        <select id="fabricConstruction">
+                            <option value="">Select fabric type first</option>
+                        </select>
+                    </div>
+                    <div class="fabric-row">
+                        <label for="fabricWeight">Fabric Weight (g/m²):</label>
+                        <input type="number" id="fabricWeight" placeholder="e.g., 150" min="50" max="800" step="1">
+                    </div>
+                    <div class="fabric-row">
+                        <label for="fabricWidth">Fabric Width (cm):</label>
+                        <input type="number" id="fabricWidth" placeholder="e.g., 150" min="100" max="300" step="1">
+                    </div>
+                    <div class="yarn-selections">
+                        <h4>Yarn Composition</h4>
+                        <div id="yarnInputs">
+                            <div class="yarn-row">
+                                <div>
+                                    <label>Yarn Type:</label>
+                                    <select class="yarn-select">
+                                        <option value="">Select yarn</option>
+                                        <option value="Organic Cotton">Organic Cotton</option>
+                                        <option value="Recycled Cotton">Recycled Cotton</option>
+                                        <option value="Recycled Polyester">Recycled Polyester</option>
+                                        <option value="Tencel">Tencel</option>
+                                        <option value="Linen">Linen</option>
+                                        <option value="Hemp">Hemp</option>
+                                        <option value="Wool">Wool</option>
+                                        <option value="Polyester">Polyester</option>
+                                        <option value="Nylon">Nylon</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>Percentage:</label>
+                                    <input type="number" class="yarn-percentage" placeholder="%" min="0" max="100" step="0.1">
+                                </div>
+                            </div>
+                            <div class="yarn-row">
+                                <div>
+                                    <label>Yarn Type:</label>
+                                    <select class="yarn-select">
+                                        <option value="">Select yarn</option>
+                                        <option value="Organic Cotton">Organic Cotton</option>
+                                        <option value="Recycled Cotton">Recycled Cotton</option>
+                                        <option value="Recycled Polyester">Recycled Polyester</option>
+                                        <option value="Tencel">Tencel</option>
+                                        <option value="Linen">Linen</option>
+                                        <option value="Hemp">Hemp</option>
+                                        <option value="Wool">Wool</option>
+                                        <option value="Polyester">Polyester</option>
+                                        <option value="Nylon">Nylon</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>Percentage:</label>
+                                    <input type="number" class="yarn-percentage" placeholder="%" min="0" max="100" step="0.1">
+                                </div>
+                            </div>
+                            <div class="yarn-row">
+                                <div>
+                                    <label>Yarn Type:</label>
+                                    <select class="yarn-select">
+                                        <option value="">Select yarn</option>
+                                        <option value="Organic Cotton">Organic Cotton</option>
+                                        <option value="Recycled Cotton">Recycled Cotton</option>
+                                        <option value="Recycled Polyester">Recycled Polyester</option>
+                                        <option value="Tencel">Tencel</option>
+                                        <option value="Linen">Linen</option>
+                                        <option value="Hemp">Hemp</option>
+                                        <option value="Wool">Wool</option>
+                                        <option value="Polyester">Polyester</option>
+                                        <option value="Nylon">Nylon</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>Percentage:</label>
+                                    <input type="number" class="yarn-percentage" placeholder="%" min="0" max="100" step="0.1">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="fabric-actions">
+                        <button class="fabric-btn calculate" id="calculateFabric">
+                            <i class="fas fa-calculator"></i> Calculate
+                        </button>
+                        <button class="fabric-btn reset" id="resetFabric">
+                            <i class="fas fa-redo"></i> Reset
+                        </button>
+                    </div>
+                </div>
+                <div class="fabric-save-section">
+                    <div class="fabric-name-input">
+                        <label for="fabricName">Custom Fabric Name:</label>
+                        <input type="text" id="fabricName" placeholder="e.g., Organic Cotton Jersey" maxlength="50">
+                    </div>
+                    <button class="fabric-btn save" id="saveFabric">
+                        <i class="fas fa-save"></i> Save to Database
+                    </button>
+                </div>
+                <div class="fabric-results">
+                    <div class="fabric-result-card">
+                        <div class="fabric-result-header">
+                            <div class="fabric-result-type">Custom</div>
+                            <h2 class="fabric-result-name">Awaiting Calculation...</h2>
+                            <p class="fabric-result-origin">Source: Custom configuration</p>
+                        </div>
+                        <div class="fabric-result-body">
+                            <p class="fabric-result-structure">Construction: Not yet determined</p>
+                            <div class="fabric-composition">
+                                <h4 class="composition-title">Yarn Composition:</h4>
+                                <div class="composition-list" id="previewCompositionList">
+                                    <!-- To be filled by JS -->
+                                </div>
+                            </div>
+                            <div class="fabric-result-metrics">
+                                <div class="fabric-result-metric co2">
+                                    <div class="fabric-result-metric-title">CO₂/kg</div>
+                                    <div class="fabric-result-metric-value" id="previewCo2">0.0</div>
+                                </div>
+                                <div class="fabric-result-metric score">
+                                    <div class="fabric-result-metric-title">Sustainability Score</div>
+                                    <div class="fabric-result-metric-value" id="previewScore">0</div>
+                                    <div class="fabric-result-score-bar">
+                                        <div class="fabric-result-score-fill" id="previewScoreFill" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="fabric-result-footer">
+                            Custom fabric sustainability metrics
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <aside class="sidebar">
+            <div class="search-box"> <i class="fas fa-search"></i> <input type="text" id="searchInput" placeholder="Search fabrics..."> </div>
+            <div class="category-filter"> <h3 class="category-title"><i class="fas fa-layer-group"></i> Woven Fabrics</h3> <ul class="category-list"> <li class="category-item active"> <span>Denim</span> <span class="category-count">12</span> </li> </ul> </div>
+            <div class="category-filter"> <h3 class="category-title"><i class="fas fa-circle-notch"></i> Circular Knit</h3> <ul class="category-list"> <li class="category-item"> <span>Jersey</span> <span class="category-count">15</span> </li> </ul> </div>
+            <div class="category-filter"> <h3 class="category-title"><i class="fas fa-grip-lines"></i> Flat Knit</h3> <ul class="category-list"> <li class="category-item"> <span>Jacquard</span> <span class="category-count">6</span> </li> </ul> </div>
+            <div class="category-filter"> <h3 class="category-title"><i class="fas fa-th-large"></i> Nonwoven</h3> <ul class="category-list"> <li class="category-item"> <span>Spunbond</span> <span class="category-count">5</span> </li> </ul> </div>
+            <div class="category-filter"> <h3 class="category-title"><i class="fas fa-palette"></i> Custom Fabrics</h3> <ul class="category-list" id="customFabrics"> </ul> <button class="clear-custom-fabrics-btn" id="clearCustomFabrics"> <i class="fas fa-trash"></i> Clear All Custom Fabrics </button> </div>
+        </aside>
+        
+        <main class="main-content">
+            <div class="filters"> <div class="results-info"> Showing <span id="fabricCount">3</span> total fabrics </div> <div class="sort-filter"> <select id="sortSelect"> <option value="name">Sort by Name</option> <option value="co2-asc">CO₂: Low to High</option> <option value="co2-desc">CO₂: High to Low</option> <option value="score-asc">Score: Low to High</option> <option value="score-desc">Score: High to Low</option> <option value="weight-asc">Weight: Light to Heavy</option> <option value="weight-desc">Weight: Heavy to Light</option> </select> </div> </div>
+            <div class="fabric-grid" id="fabricGrid">
+                <div class="fabric-card"> <div class="fabric-header"> <div class="fabric-type">Woven</div> <h2 class="fabric-name">Organic Cotton Denim</h2> <p class="fabric-origin">Source: Turkey</p> </div> <div class="fabric-body"> <p class="fabric-structure">Construction: Twill weave, 320g/m²</p> <div class="metrics"> <div class="metric co2"> <div class="metric-title">CO₂/kg</div> <div class="metric-value co2-value">2.5</div> </div> <div class="metric score"> <div class="metric-title">Sustainability</div> <div class="metric-value score-value">84</div> <div class="score-bar"> <div class="score-fill" style="width: 84%"></div> </div> </div> </div> <div class="badges"> <span class="badge eco">Low Carbon</span> <span class="badge">Organic</span> <span class="badge">Natural Fiber</span> </div> </div> <div class="fabric-footer"> <span class="fabric-uses">Uses: Jeans, jackets, skirts</span> <button class="detail-btn">Details</button> </div> </div>
+                <div class="fabric-card"> <div class="fabric-header"> <div class="fabric-type">Circular Knit</div> <h2 class="fabric-name">Recycled Polyester Jersey</h2> <p class="fabric-origin">Source: Italy</p> </div> <div class="fabric-body"> <p class="fabric-structure">Construction: Single jersey, 180g/m²</p> <div class="metrics"> <div class="metric co2"> <div class="metric-title">CO₂/kg</div> <div class="metric-value co2-value">1.8</div> </div> <div class="metric score"> <div class="metric-title">Sustainability</div> <div class="metric-value score-value">89</div> <div class="score-bar"> <div class="score-fill" style="width: 89%"></div> </div> </div> </div> <div class="badges"> <span class="badge eco">Recycled</span> <span class="badge">Quick Dry</span> <span class="badge">Lightweight</span> </div> </div> <div class="fabric-footer"> <span class="fabric-uses">Uses: Sportswear, t-shirts, underwear</span> <button class="detail-btn">Details</button> </div> </div>
+                <div class="fabric-card"> <div class="fabric-header"> <div class="fabric-type">Flat Knit</div> <h2 class="fabric-name">Tencel & Wool Mix</h2> <p class="fabric-origin">Source: Sweden</p> </div> <div class="fabric-body"> <p class="fabric-structure">Construction: Jacquard knit, 240g/m²</p> <div class="metrics"> <div class="metric co2"> <div class="metric-title">CO₂/kg</div> <div class="metric-value co2-value">2.1</div> </div> <div class="metric score"> <div class="metric-title">Sustainability</div> <div class="metric-value score-value">92</div> <div class="score-bar"> <div class="score-fill" style="width: 92%"></div> </div> </div> </div> <div class="badges"> <span class="badge eco">Biodegradable</span> <span class="badge">Natural Fiber</span> <span class="badge">Thermo-regulating</span> </div> </div> <div class="fabric-footer"> <span class="fabric-uses">Uses: Sweaters, cardigans, shawls</span> <button class="detail-btn">Details</button> </div> </div>
+            </div>
+            <div class="chart-container"> <h3 class="chart-title">Average Environmental Impact by Fabric Category</h3> <canvas id="impactChart"></canvas> </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // --- DATA & CONFIGURATION ---
+            const yarnData = {
+                'Organic Cotton': { co2: 2.5, score: 85, type: 'Natural Fiber' },
+                'Recycled Cotton': { co2: 1.5, score: 90, type: 'Recycled' },
+                'Recycled Polyester': { co2: 1.8, score: 88, type: 'Recycled' },
+                'Tencel': { co2: 2.1, score: 92, type: 'Natural Fiber' },
+                'Linen': { co2: 2.0, score: 93, type: 'Natural Fiber' },
+                'Hemp': { co2: 1.2, score: 95, type: 'Natural Fiber' },
+                'Wool': { co2: 5.0, score: 70, type: 'Natural Fiber' },
+                'Polyester': { co2: 6.4, score: 40, type: 'Synthetic' },
+                'Nylon': { co2: 8.0, score: 30, type: 'Synthetic' }
+            };
+            
+            // NEW: Data structure for dependent dropdowns
+            const constructions = {
+                "Woven": ["Plain weave", "Twill weave", "Satin weave", "Denim", "Canvas", "Poplin", "Gabardine", "Herringbone", "Velvet", "Corduroy", "Terrycloth", "Broadcloth", "Serge"],
+                "Circular Knit": ["Single jersey", "Double jersey", "Interlock", "Rib knit", "Milano rib", "Fleece (Brushed or Loopback)", "French terry", "Ponte di Roma (Ponte knit)", "Jacquard jersey", "Mesh knit", "Thermal knit (Waffle knit)", "Pointelle knit"],
+                "Flat Knit": ["Cable knit", "Jacquard knit", "Intarsia knit", "Fully fashioned knit", "Full cardigan", "Half cardigan", "Jersey knit", "Waffle knit"],
+                "Nonwoven": ["Spunbond", "Meltblown", "Spunlace (Hydroentangled)", "Needle-punched", "Thermal bonded", "Chemical bonded", "SMS (Spunbond–Meltblown–Spunbond)", "SMMS (Spunbond–Meltblown–Meltblown–Spunbond)"]
+            };
+
+            let lastCalculatedData = null;
+
+            // --- DOM ELEMENTS ---
+            const fabricGrid = document.getElementById('fabricGrid');
+            const fabricCountSpan = document.getElementById('fabricCount');
+            const fabricTypeSelect = document.getElementById('fabricType');
+            const fabricConstructionSelect = document.getElementById('fabricConstruction');
+            const calculateFabricBtn = document.getElementById('calculateFabric');
+            const saveFabricBtn = document.getElementById('saveFabric');
+            const resetFabricBtn = document.getElementById('resetFabric');
+            
+            // --- HELPER FUNCTIONS ---
+
+            // Updates the total fabric count display
+            function updateFabricCount() {
+                const count = fabricGrid.querySelectorAll('.fabric-card').length;
+                fabricCountSpan.textContent = count;
+            }
+
+            // Creates the HTML string for a new main grid fabric card
+            function createMainFabricCardHTML(data) {
+                let badgesHTML = '';
+                const uniqueTypes = [...new Set(data.composition.map(y => yarnData[y.yarn].type))];
+                uniqueTypes.forEach(type => {
+                    let badgeClass = '';
+                    if (type === 'Recycled' || type === 'Natural Fiber') badgeClass = 'eco';
+                    if (type === 'Synthetic') badgeClass = 'synthetic';
+                    badgesHTML += `<span class="badge ${badgeClass}">${type}</span> `;
+                });
+
+                return `
+                    <div class="fabric-header"> <div class="fabric-type">${data.type}</div> <h2 class="fabric-name">${data.name}</h2> <p class="fabric-origin">Source: Custom Production</p> </div>
+                    <div class="fabric-body"> <p class="fabric-structure">Construction: ${data.construction}, ${data.weight}g/m²</p>
+                        <div class="metrics"> <div class="metric co2"> <div class="metric-title">CO₂/kg</div> <div class="metric-value co2-value">${data.co2.toFixed(2)}</div> </div> <div class="metric score"> <div class="metric-title">Sustainability</div> <div class="metric-value score-value">${Math.round(data.score)}</div> <div class="score-bar"> <div class="score-fill" style="width: ${Math.round(data.score)}%"></div> </div> </div> </div>
+                        <div class="badges">${badgesHTML}</div>
+                    </div>
+                    <div class="fabric-footer"> <span class="fabric-uses">Last updated: ${new Date().toLocaleDateString('en-US')}</span> <button class="detail-btn">Details</button> </div>
+                `;
+            }
+
+            // Resets all input fields in the calculator form
+            function resetForm() {
+                document.getElementById('fabricName').value = '';
+                fabricTypeSelect.value = '';
+                fabricWeight.value = '';
+                fabricWidth.value = '';
+                document.querySelectorAll('.yarn-select').forEach(select => select.value = '');
+                document.querySelectorAll('.yarn-percentage').forEach(input => input.value = '');
+                
+                // Trigger the change event to reset the construction dropdown
+                fabricTypeSelect.dispatchEvent(new Event('change'));
+
+                document.querySelector('.fabric-result-name').textContent = 'Awaiting Calculation...';
+                document.querySelector('.fabric-result-structure').textContent = 'Not yet determined';
+                document.getElementById('previewCompositionList').innerHTML = '';
+                document.getElementById('previewCo2').textContent = '0.0';
+                document.getElementById('previewScore').textContent = '0';
+                document.getElementById('previewScoreFill').style.width = '0%';
+                lastCalculatedData = null;
+            }
+
+            // --- EVENT LISTENERS ---
+
+            // NEW: Event listener for the Fabric Type dropdown
+            fabricTypeSelect.addEventListener('change', function() {
+                const selectedType = this.value;
+                fabricConstructionSelect.innerHTML = ''; // Clear existing options
+
+                if (selectedType && constructions[selectedType]) {
+                    // Add a default option first
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = "";
+                    defaultOption.textContent = "Select construction";
+                    fabricConstructionSelect.appendChild(defaultOption);
+
+                    // Populate with relevant options
+                    const options = constructions[selectedType];
+                    options.forEach(optionText => {
+                        const option = document.createElement('option');
+                        option.value = optionText;
+                        option.textContent = optionText;
+                        fabricConstructionSelect.appendChild(option);
+                    });
+                } else {
+                    // If no type is selected, show a generic message
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = "";
+                    defaultOption.textContent = "Select fabric type first";
+                    fabricConstructionSelect.appendChild(defaultOption);
+                }
+            });
+
+            // "CALCULATE" BUTTON
+            calculateFabricBtn.addEventListener('click', function() {
+                const fabricType = fabricTypeSelect.value;
+                const fabricConstruction = fabricConstructionSelect.value;
+                const fabricWeight = document.getElementById('fabricWeight').value;
+
+                if (!fabricType || !fabricConstruction || !fabricWeight) {
+                    alert('Please fill in the Fabric Type, Construction, and Weight fields.');
+                    lastCalculatedData = null;
+                    return;
+                }
+
+                const yarnInputs = document.querySelectorAll('.yarn-row');
+                let composition = [];
+                let totalPercentage = 0;
+                yarnInputs.forEach(row => {
+                    const yarn = row.querySelector('.yarn-select').value;
+                    const percentage = parseFloat(row.querySelector('.yarn-percentage').value);
+                    if (yarn && percentage > 0) {
+                        composition.push({ yarn, percentage });
+                        totalPercentage += percentage;
+                    }
+                });
+
+                if (composition.length === 0) { alert('Please enter at least one yarn composition.'); lastCalculatedData = null; return; }
+                if (Math.abs(totalPercentage - 100) > 0.1) { alert(`The sum of yarn percentages is ${totalPercentage.toFixed(1)}%. Please adjust to 100%.`); lastCalculatedData = null; return; }
+
+                let totalCO2 = 0;
+                let totalScore = 0;
+                composition.forEach(item => {
+                    totalCO2 += yarnData[item.yarn].co2 * (item.percentage / 100);
+                    totalScore += yarnData[item.yarn].score * (item.percentage / 100);
+                });
+
+                lastCalculatedData = { name: document.getElementById('fabricName').value || 'Unnamed Fabric', type: fabricType, construction: fabricConstruction, weight: fabricWeight, composition: composition, co2: totalCO2, score: totalScore };
+                
+                document.querySelector('.fabric-result-name').textContent = 'Calculated Results';
+                document.querySelector('.fabric-result-structure').textContent = `Construction: ${fabricConstruction}`;
+                document.getElementById('previewCo2').textContent = totalCO2.toFixed(2);
+                document.getElementById('previewScore').textContent = Math.round(totalScore);
+                document.getElementById('previewScoreFill').style.width = `${Math.round(totalScore)}%`;
+                
+                const compositionList = document.getElementById('previewCompositionList');
+                compositionList.innerHTML = '';
+                composition.forEach(item => {
+                    compositionList.innerHTML += `<div class="composition-item"><div class="composition-yarn-name">${item.yarn}</div><div class="composition-percentage">${item.percentage}%</div></div>`;
+                });
+                
+                alert('Calculation complete! Results are shown on the preview card.');
+            });
+
+            // "SAVE TO DATABASE" BUTTON
+            saveFabricBtn.addEventListener('click', function() {
+                const fabricName = document.getElementById('fabricName').value.trim();
+                if (!fabricName) { alert('Please enter a "Custom Fabric Name" before saving.'); return; }
+                if (!lastCalculatedData) { alert('Please calculate the data first by clicking the "Calculate" button.'); return; }
+
+                lastCalculatedData.name = fabricName;
+
+                const cardElement = document.createElement('div');
+                cardElement.className = 'fabric-card';
+                cardElement.innerHTML = createMainFabricCardHTML(lastCalculatedData);
+
+                fabricGrid.appendChild(cardElement);
+                updateFabricCount();
+                alert(`"${fabricName}" has been successfully added to the main list!`);
+                resetForm();
+            });
+
+            // "RESET" BUTTON
+            resetFabricBtn.addEventListener('click', function() {
+                resetForm();
+                alert('Form and preview have been reset!');
+            });
+            
+            // --- PAGE INITIALIZATION ---
+            updateFabricCount();
+            fabricTypeSelect.dispatchEvent(new Event('change')); // Initialize construction dropdown on page load
+
+            // Chart.js and other original functions
+            const ctx = document.getElementById('impactChart').getContext('2d');
+            const impactChart = new Chart(ctx, { type: 'bar', data: { labels: ['Woven', 'Circular Knit', 'Flat Knit', 'Nonwoven', 'Custom Fabrics'], datasets: [ { label: 'CO₂ Emission (kg/kg)', data: [3.2, 2.5, 2.8, 4.1, 2.3], backgroundColor: 'rgba(0, 85, 48, 0.7)', borderColor: 'rgba(0, 85, 48, 1)', borderWidth: 1 }, { label: 'Sustainability Score', data: [76, 82, 79, 68, 86], backgroundColor: 'rgba(249, 186, 0, 0.7)', borderColor: 'rgba(249, 186, 0, 1)', borderWidth: 1 } ] }, options: { responsive: true, plugins: { legend: { position: 'top' }, title: { display: true, text: 'Environmental Performance of Fabric Types' } }, scales: { y: { beginAtZero: true, title: { display: true, text: 'Values' } } } } });
+            document.querySelectorAll('.category-item').forEach(item => { item.addEventListener('click', function() { document.querySelectorAll('.category-item').forEach(i => { i.classList.remove('active'); }); this.classList.add('active'); alert(`Category "${this.querySelector('span').textContent}" selected!`); }); });
+            document.getElementById('clearCustomFabrics').addEventListener('click', function() { if (confirm('Are you sure you want to delete all custom fabrics?')) { alert('Custom fabrics have been cleared!'); } });
+        });
+    </script>
+</body>
+</html>

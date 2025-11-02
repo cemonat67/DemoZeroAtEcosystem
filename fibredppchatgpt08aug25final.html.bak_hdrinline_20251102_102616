@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fiber Sustainability Database</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+    :root{
+      --primary:#005530;--primary-light:#007040;--secondary:#0A1D3D;
+      --accent:#f9ba00;--accent-light:#ffd04d;--light:#f8f9fa;--medium:#e9ecef;
+      --dark:#333;--danger:#D51635;--success:#28a745;
+    }
+    body{background:linear-gradient(135deg,#f8f9fa,#e9ecef);color:var(--dark);line-height:1.6;padding:20px;min-height:100vh}
+    .container{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:650px 1fr;gap:25px}
+    header{grid-column:1/-1;text-align:center;padding:20px 0;margin-bottom:20px;border-bottom:2px solid var(--secondary)}
+    h1{color:var(--primary);font-size:2.5rem;margin-bottom:10px}
+    .subtitle{color:var(--secondary);font-size:1.2rem;font-weight:500}
+    .sidebar{background:#fff;border-radius:15px;box-shadow:0 8px 20px rgba(0,0,0,.08);padding:25px;height:fit-content;display:flex;flex-direction:column;gap:25px}
+    .search-box{position:relative}
+    .search-box input{width:100%;padding:12px 20px 12px 45px;border:2px solid var(--medium);border-radius:50px;font-size:1rem;transition:all .3s}
+    .search-box input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(0,85,48,.2)}
+    .search-box i{position:absolute;left:20px;top:50%;transform:translateY(-50%);color:#6c757d}
+    .category-title{font-size:1.2rem;color:var(--secondary);margin-bottom:15px;padding-bottom:8px;border-bottom:2px solid var(--medium);display:flex;align-items:center}
+    .category-title i{margin-right:10px;color:var(--primary)}
+    .category-list{list-style:none}
+    .category-item{padding:12px 15px;margin-bottom:8px;border-radius:8px;cursor:pointer;transition:all .2s;display:flex;justify-content:space-between;align-items:center}
+    .category-item:hover{background:rgba(0,85,48,.05)}
+    .category-item.active{background:var(--primary);color:#fff;font-weight:600}
+    .category-count{background:var(--medium);padding:2px 8px;border-radius:20px;font-size:.85rem}
+    .active .category-count{background:rgba(255,255,255,.3)}
+    .main-content{background:#fff;border-radius:15px;box-shadow:0 8px 20px rgba(0,0,0,.08);padding:25px}
+    .filters{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px;padding-bottom:20px;border-bottom:2px solid var(--medium)}
+    .results-info{font-size:1.1rem;color:var(--secondary);font-weight:500}
+    .sort-filter select{padding:10px 15px;border:2px solid var(--medium);border-radius:8px;background:#fff;font-size:1rem;cursor:pointer}
+    .sort-filter select:focus{outline:none;border-color:var(--primary)}
+    .fiber-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:25px;margin-top:20px}
+    .fiber-card{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 5px 15px rgba(0,0,0,.05);transition:transform .3s,box-shadow .3s;border:1px solid var(--medium);display:flex;flex-direction:column;min-height:480px}
+    .fiber-header{background:var(--primary);color:#fff;padding:20px;position:relative}
+    .fiber-type{position:absolute;top:15px;right:15px;background:rgba(255,255,255,.2);padding:5px 12px;border-radius:20px;font-size:.85rem;font-weight:500}
+    .fiber-name{font-size:1.5rem;font-weight:600;margin-bottom:5px}
+    .fiber-origin{font-size:.95rem;opacity:.9}
+    .fiber-body{padding:20px;flex:1;display:flex;flex-direction:column}
+    .fiber-structure{color:var(--secondary);margin-bottom:15px;font-weight:500}
+    .metrics{display:flex;justify-content:space-between;margin-bottom:20px}
+    .metric{text-align:center;padding:15px;border-radius:10px;flex:1;margin:0 5px}
+    .metric.co2{background:rgba(0,85,48,.08);border:1px solid rgba(0,85,48,.2)}
+    .metric.score{background:rgba(10,29,61,.08);border:1px solid rgba(10,29,61,.2)}
+    .metric-title{font-size:.9rem;margin-bottom:5px;color:#6c757d}
+    .metric-value{font-size:1.6rem;font-weight:700}
+    .co2-value{color:var(--primary)}
+    .score-value{color:var(--secondary)}
+    .score-bar{height:8px;background:var(--medium);border-radius:4px;margin-top:10px;overflow:hidden}
+    .score-fill{height:100%;background:var(--secondary);border-radius:4px}
+    .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px;margin-bottom:15px}
+    .badge{display:inline-block;padding:6px 12px;background:rgba(0,85,48,.1);color:var(--primary);border-radius:20px;font-size:.85rem;font-weight:500}
+    .badge.recycled{background:rgba(40,167,69,.15);color:var(--success)}
+    .badge.synthetic{background:rgba(213,22,53,.1);color:var(--danger)}
+    .fiber-footer{padding:15px 20px;background:var(--light);border-top:1px solid var(--medium);display:flex;justify-content:space-between;align-items:center}
+    .fiber-uses{font-size:.95rem;color:#6c757d}
+    .detail-btn{background:var(--primary);color:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:500;transition:background .3s}
+    .detail-btn:hover{background:var(--primary-light)}
+    .chart-container{margin-top:30px;padding:20px;background:var(--light);border-radius:12px}
+    .chart-title{text-align:center;color:var(--secondary);margin-bottom:20px;font-size:1.3rem;font-weight:600}
+    .info-section{margin-top:40px;padding-top:25px;border-top:2px solid var(--medium)}
+    .info-title{font-size:1.5rem;color:var(--secondary);margin-bottom:20px;text-align:center}
+    .info-content{display:grid;grid-template-columns:1fr 1fr;gap:25px}
+    .info-card{background:#fff;padding:25px;border-radius:12px;box-shadow:0 5px 15px rgba(0,0,0,.05)}
+    .info-card h3{color:var(--primary);margin-bottom:15px;display:flex;align-items:center}
+    .info-card h3 i{margin-right:10px}
+    .info-card p{margin-bottom:15px;line-height:1.7}
+    .highlight{background:rgba(249,186,0,.15);padding:20px;border-radius:10px;margin-top:15px;border-left:4px solid var(--accent)}
+
+    /* Modal */
+    .modal{display:none;position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center}
+    .modal-content{background:#fff;border-radius:15px;width:80%;max-width:800px;max-height:90vh;overflow-y:auto;padding:30px;position:relative}
+    .close-modal{position:absolute;top:20px;right:20px;font-size:1.5rem;cursor:pointer;color:var(--dark)}
+    .modal-header{background:var(--primary);color:#fff;padding:20px;border-radius:10px 10px 0 0;margin:-30px -30px 20px -30px}
+    .modal-body{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+    .modal-stats{display:flex;justify-content:space-between;margin:20px 0}
+    .modal-stat{text-align:center;padding:15px;border-radius:10px;background:var(--light);flex:1;margin:0 10px}
+    .modal-stat-value{font-size:1.8rem;font-weight:700}
+    .modal-stat.co2 .modal-stat-value{color:var(--primary)}
+    .modal-stat.score .modal-stat-value{color:var(--secondary)}
+    .modal-section{margin-bottom:20px}
+    .modal-section h3{color:var(--primary);margin-bottom:10px}
+
+    /* Blended Fiber UI */
+    .blended-fiber{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 5px 15px rgba(0,0,0,.08);border:1px solid var(--medium)}
+    .blended-header{background:var(--accent);color:var(--secondary);padding:18px 20px;font-size:1.25rem;font-weight:600;display:flex;align-items:center}
+    .blended-header i{margin-right:12px;font-size:1.4rem}
+    .blended-body{padding:20px}
+    .blend-header-row{display:grid;grid-template-columns:4fr 2fr 1fr;gap:15px;margin-bottom:15px;padding-bottom:10px;border-bottom:2px solid var(--medium)}
+    .blend-header-col{font-weight:600;color:var(--secondary);font-size:.95rem;text-transform:uppercase;letter-spacing:.5px}
+    .blend-row{display:grid;grid-template-columns:4fr 2fr 1fr;gap:15px;margin-bottom:15px;align-items:center}
+    .blend-row select,.blend-row input{width:100%;padding:12px;border:2px solid var(--medium);border-radius:8px;background:#fff;font-size:1rem}
+    .blend-row input{text-align:center}
+    .blend-row input:focus{border-color:var(--accent);outline:none}
+    .blend-row button{width:100%;height:45px;border-radius:8px;background:var(--danger);border:none;color:#fff;font-weight:bold;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;min-width:45px}
+    .blend-row button:hover{background:#b91d47;transform:scale(1.05)}
+    .blend-total{display:flex;justify-content:space-between;align-items:center;margin:20px 0;padding:15px;background:rgba(249,186,0,.1);border-radius:8px;border:1px solid var(--accent)}
+    .total-percentage{font-weight:600;font-size:1.1rem;color:var(--secondary)}
+    .percentage-status{margin-left:10px;padding:2px 8px;border-radius:12px;font-size:.8rem;font-weight:600}
+    .percentage-status.valid{background:var(--success);color:#fff}
+    .percentage-status.invalid{background:var(--danger);color:#fff}
+    .add-fiber-btn{padding:8px 16px;background:var(--accent-light);color:var(--secondary);border:1px solid var(--accent);border-radius:6px;cursor:pointer;font-weight:500;transition:all .2s;display:flex;align-items:center;gap:5px}
+    .add-fiber-btn:hover{background:var(--accent);transform:translateY(-1px)}
+    .blend-actions{display:flex;gap:12px;margin-top:20px;flex-wrap:wrap}
+    .blend-btn{flex:1;min-width:140px;padding:12px;border:none;border-radius:8px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+    .blend-btn.calculate{background:var(--accent);color:var(--secondary)}
+    .blend-btn.save{background:var(--success);color:#fff}
+    .blend-btn.reset{background:var(--light);color:var(--dark);border:1px solid var(--medium)}
+    .blend-btn:hover{transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,.1)}
+    .blend-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+    .blend-results{margin-top:25px;padding:20px;background:rgba(249,186,0,.1);border-radius:10px;border-left:4px solid var(--accent);display:none}
+    .blend-results-title{color:var(--secondary);font-size:1.2rem;font-weight:600;margin-bottom:15px;display:flex;align-items:center;gap:10px}
+    .blend-results-title i{color:var(--accent)}
+    .blend-metrics{display:flex;gap:15px;margin-top:15px}
+    .blend-metric{flex:1;text-align:center;padding:15px;border-radius:8px;background:rgba(255,255,255,.7);box-shadow:0 3px 6px rgba(0,0,0,.05)}
+    .blend-metric.co2{border:1px solid rgba(0,85,48,.3)}
+    .blend-metric.score{border:1px solid rgba(10,29,61,.3)}
+    .blend-metric-value{font-size:1.8rem;font-weight:700;margin:10px 0}
+    .blend-co2-value{color:var(--primary)}
+    .blend-score-value{color:var(--secondary)}
+    .blend-metric-title{font-size:.9rem;color:#6c757d}
+
+    /* NEW: Blend Ratio scorecard */
+    .metric.ratio{background:rgba(249,186,0,.10);border:1px solid #f9ba00}
+    .ratio-badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+    .ratio-badge{display:inline-block;padding:6px 10px;border-radius:14px;background:#f9ba00;color:#0A1D3D;font-size:.85rem;font-weight:600}
+
+    @media (max-width:1100px){.container{grid-template-columns:550px 1fr}.fiber-grid{grid-template-columns:repeat(auto-fill,minmax(280px,1fr))}}
+    @media (max-width:900px){.container{grid-template-columns:1fr}.sidebar{margin-bottom:25px}.info-content{grid-template-columns:1fr}.modal-body{grid-template-columns:1fr}}
+    @media (max-width:600px){
+      .filters{flex-direction:column;align-items:flex-start;gap:15px}
+      .fiber-grid{grid-template-columns:1fr}
+      .modal-stats{flex-direction:column;gap:10px}
+      .blend-row{flex-direction:column;gap:8px;grid-template-columns:1fr}
+      .blend-row select,.blend-row input{width:100%}
+      .blend-row button{width:100%;border-radius:8px;height:auto;padding:10px}
+      .blend-actions{flex-direction:column}
+    }
+  
+.rabateks {
+  color: var(--primary);
+  font-weight: bold;
+}
+
+.dpp {
+  color: var(--accent);
+  font-weight: bold;
+}
+
+.fiber-card.blend .fiber-header {
+  background: #f9ba00;
+  color: var(--secondary);
+}
+
+.blend-icon {
+  margin-right: 8px;
+  font-size: 1.1rem;
+  color: inherit;
+}
+
+
+/* __HDR_NORMALIZE__ */
+.header{
+  background:#fff;
+  padding:30px 20px 24px;
+  border-bottom:2px solid var(--ring);
+  min-height:120px;            /* yükseklik: RabateksDPP ile aynı */
+}
+.header .logo-container{display:flex;align-items:center;gap:20px;margin-bottom:14px}
+.header h1{
+  color:#02154e;
+  font-size:48px;
+  font-weight:800;
+  line-height:1.1;
+  margin:8px 0 6px 0;
+  text-align:center;           /* başlık ortalı */
+}
+.header .subtitle{
+  color:#02154e;
+  font-size:20px;
+  font-weight:700;
+  text-align:center;           /* ikinci satır ortalı */
+  margin:0 0 6px 0;
+}
+.header .description{
+  color:var(--muter);
+  font-size:14px;
+  text-align:center;           /* üçüncü satır ortalı */
+  margin:0;
+}
+/* __HDR_NORMALIZE__END */
+
+
+/* ZAP header normalize */
+#zap-header h1{font-weight:800;font-size:48px;line-height:1.1;color:#02154e;text-align:center;margin:8px 0 6px}
+#zap-header .subtitle{color:#02154e;font-size:20px;font-weight:700;text-align:center;margin:0 0 6px}
+#zap-header .description{color:#888;font-size:14px;text-align:center;margin:0}
+/* /ZAP */
+
+
+/* ZAP header normalize */
+#zap-header h1{font-weight:800;font-size:48px;line-height:1.1;color:#02154e;text-align:center;margin:8px 0 6px}
+#zap-header .subtitle{color:#02154e;font-size:20px;font-weight:700;text-align:center;margin:0 0 6px}
+#zap-header .description{color:#888;font-size:14px;text-align:center;margin:0}
+/* /ZAP */
+
+</style>
+
+<!-- ICON LIBRARIES -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<!-- END ICON LIBRARIES -->
+
+<style id="zplogo-style">
+  .zplogo-wrap{position:absolute;left:24px;top:12px;z-index:10;pointer-events:none}
+  .zplogo-wrap img{height:84px;width:auto;display:block}
+  @media (max-width:768px){ .zplogo-wrap img{height:64px} }
+</style>
+<style id="fixed-header-140">
+  .header, .main-header {
+    height: 140px !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0;
+    margin: 0;
+  }
+  .header img, .main-header img {
+    height: 84px !important;
+    width: auto;
+    margin-bottom: 8px;
+  }
+  .header h1, .main-header h1 {
+    font-size: 2rem !important;
+    margin: 4px 0;
+  }
+  .header p, .main-header p {
+    font-size: 1.1rem !important;
+    margin: 2px 0;
+  }
+</style>
+<style id="zpp-header-140">
+  .header, .main-header {
+    height: 140px !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0;
+    margin: 0;
+  }
+  .header img, .main-header img {
+    height: 84px !important;
+    width: auto;
+    margin-bottom: 8px;
+  }
+  .header h1, .main-header h1 {
+    font-size: 2rem !important;
+    margin: 4px 0;
+  }
+  .header p, .main-header p {
+    font-size: 1.1rem !important;
+    margin: 2px 0;
+  }
+  @media (max-width:768px){
+    .header, .main-header{height:110px !important;}
+    .header img, .main-header img{height:64px !important;}
+  }
+</style>
+</head>
+<body>
+<!-- ZAP-HEADER v1 -->
+<div id="zap-header" style="padding:30px 20px 24px;border-bottom:2px solid #f0f0f0;text-align:center;">
+  <h1 style="margin:8px 0 6px 0;font-weight:800;font-size:48px;line-height:1.1;color:#02154e;">
+    Zero<span style="color:#f9ba00">@</span>Production <span style="color:#f9ba00">DPP</span> <span style="color:#02154e">Dashboard</span>
+  </h1>
+  <p class="subtitle" style="margin:0 0 6px 0;font-size:20px;font-weight:700;color:#02154e;">
+    Digital Product Passport • Energy Monitoring • Water Management • Utility Optimization
+  </p>
+  <p class="description" style="margin:0;font-size:14px;color:#888;">
+    Complete transparency and traceability across your entire garment manufacturing and retail ecosystem
+  </p>
+</div>
+<!-- /ZAP-HEADER v1 -->
+
+
+
+<div class="zplogo-wrap"><img src="assets/img/zaplogo.svg" alt="Zero@Production"></div>
+
+<div class="container">
+    
+<header>
+  <style>
+    .back-button {
+      background-color: #005530;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: bold;
+      text-decoration: none;
+      display: inline-block;
+      transition: background-color 0.3s ease;
+    }
+    .back-button:hover {
+      background-color: #007040;
+    }
+  </style>
+  <div style="text-align:right; margin: 10px 20px;">
+    <a href="index.html" class="back-button">
+      ← Back to Main Dashboard
+    </a>
+  </div>
+
+  </header>
+
+    <aside class="sidebar">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input id="searchInput" placeholder="Search fibers..." type="text">
+      </div>
+
+      <div class="category-filter">
+        <h3 class="category-title"><i class="fas fa-seedling"></i> Plant-Based Fibers</h3>
+        <ul class="category-list" id="plantBased"></ul>
+      </div>
+
+      <div class="category-filter">
+        <h3 class="category-title"><i class="fas fa-paw"></i> Animal-Based Fibers</h3>
+        <ul class="category-list" id="animalBased"></ul>
+      </div>
+
+      <div class="category-filter">
+        <h3 class="category-title"><i class="fas fa-recycle"></i> Recycled Fibers</h3>
+        <ul class="category-list" id="recycledFibers"></ul>
+      </div>
+
+      <div class="category-filter">
+        <h3 class="category-title"><i class="fas fa-leaf"></i> Organic Fibers</h3>
+        <ul class="category-list" id="organicFibers"></ul>
+      </div>
+
+      <div class="category-filter">
+        <h3 class="category-title"><i class="fas fa-atom"></i> Regenerated Fibers</h3>
+        <ul class="category-list" id="regeneratedFibers"></ul>
+      </div>
+
+      <div class="category-filter">
+        <h3 class="category-title"><i class="fas fa-flask"></i> Synthetic Fibers</h3>
+        <ul class="category-list" id="syntheticFibers"></ul>
+      </div>
+
+      <!-- Blended Fiber Calculator -->
+      <div class="blended-fiber">
+        <div class="blended-header">
+          <i class="fas fa-calculator"></i><span>Blended Fiber Calculator</span>
+        </div>
+        <div class="blended-body">
+          <div class="blend-header-row">
+            <div class="blend-header-col">Fiber Name</div>
+            <div class="blend-header-col">Blend %</div>
+            <div class="blend-header-col">Action</div>
+          </div>
+
+          <div id="blendInputs">
+            <div class="blend-row">
+              <select class="fiber-select"><option value="">Select fiber</option></select>
+              <input type="number" class="percentage" placeholder="%" min="1" max="100">
+              <button class="remove-blend" style="display:none;"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="blend-row">
+              <select class="fiber-select"><option value="">Select fiber</option></select>
+              <input type="number" class="percentage" placeholder="%" min="1" max="100">
+              <button class="remove-blend"><i class="fas fa-times"></i></button>
+            </div>
+          </div>
+
+          <div class="blend-total">
+            <div class="total-percentage">Total: <span id="totalPercentage">0</span>% 
+              <span id="percentageStatus" class="percentage-status"></span>
+            </div>
+            <button class="add-fiber-btn" id="addFiberBtn"><i class="fas fa-plus"></i> Add Fiber</button>
+          </div>
+
+          <div class="blend-actions">
+            <button class="blend-btn calculate" id="calculateBlend"><i class="fas fa-calculator"></i> Calculate</button>
+            <div id="blendNameRow" style="flex:2;min-width:220px;">
+              <input type="text" id="blendNameInput" placeholder="Fiber Name" aria-label="Fiber Name" style="width:100%;padding:12px;border:2px solid var(--medium);border-radius:8px;">
+            </div>
+            <button class="blend-btn save" id="saveBlend"><i class="fas fa-save"></i> Save</button>
+            <button class="blend-btn reset" id="resetBlend"><i class="fas fa-redo"></i> Reset</button>
+          </div>
+
+          <div class="blend-actions" style="margin-top:15px;">
+            <button class="blend-btn" id="importOrdersBtn" style="background:#007040;color:#fff;flex:1;">
+              <i class="fas fa-file-import"></i> Import Orders
+            </button>
+            <button class="blend-btn" id="exportDataBtn" style="background:#0A1D3D;color:#fff;flex:1;">
+              <i class="fas fa-file-export"></i> Export Data
+            </button>
+          </div>
+          
+          <input type="file" id="fileInput" accept=".json" style="display:none;">
+          
+          <div id="importStatus" style="margin-top:10px;padding:10px;border-radius:6px;display:none;">
+            <p id="importMessage"></p>
+          </div>
+
+          <div class="blend-results" id="blendResults">
+            <h4 class="blend-results-title"><i class="fas fa-clipboard-check"></i> Blended Fiber Results</h4>
+            <div class="blend-metrics">
+              <div class="blend-metric co2">
+                <div class="blend-metric-title">CO₂/kg</div>
+                <div class="blend-metric-value blend-co2-value" id="blendCo2Value">0.0</div>
+                <div class="blend-metric-desc">kg CO₂ per kg fiber</div>
+              </div>
+              <div class="blend-metric score">
+                <div class="blend-metric-title">Mango DPI Score</div>
+                <div class="blend-metric-value blend-score-value" id="blendScoreValue">0.0</div>
+                <div class="blend-metric-desc">Sustainability score</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="filters">
+        <div class="results-info">Showing <span id="fiberCount">36</span> fibers</div>
+        <div class="sort-filter">
+          <select id="sortSelect">
+            <option value="name">Sort by Name</option>
+            <option value="co2-asc">CO₂: Low to High</option>
+            <option value="co2-desc">CO₂: High to Low</option>
+            <option value="score-asc">Score: Low to High</option>
+            <option value="score-desc">Score: High to Low</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="fiber-grid" id="fiberGrid"></div>
+
+      <div class="chart-container">
+        <h3 class="chart-title">Average Environmental Impact by Fiber Category</h3>
+        <canvas id="impactChart"></canvas>
+      </div>
+
+      <div class="info-section">
+        <h2 class="info-title">Sustainability Metrics Explained</h2>
+        <div class="info-content">
+          <div class="info-card">
+            <h3><i class="fas fa-cloud"></i> CO₂/kg Measurement</h3>
+            <p>The CO₂/kg value represents the carbon footprint of producing one kilogram of the fiber, measured in kilograms of CO₂ equivalent emissions.</p>
+            <p>This Life Cycle Assessment (LCA) data includes emissions from cultivation, harvesting, processing, and transportation.</p>
+            <div class="highlight">
+              <p><strong>Interpretation:</strong> Lower values indicate better environmental performance. Values below 3 kg CO₂/kg are considered excellent, while values above 10 kg CO₂/kg have significant environmental impact.</p>
+            </div>
+          </div>
+
+          <div class="info-card">
+            <h3><i class="fas fa-star"></i> Mango DPI Score</h3>
+            <p>The Mango DPI (Designated Product Identifier) Score is a comprehensive sustainability metric that evaluates fibers across multiple dimensions:</p>
+            <ul>
+              <li>Water consumption and pollution</li>
+              <li>Chemical usage and toxicity</li>
+              <li>Energy efficiency</li>
+              <li>Land use impact</li>
+              <li>Circularity potential</li>
+            </ul>
+            <div class="highlight">
+              <p><strong>Interpretation:</strong> Scores range from 0-100. Higher scores represent more sustainable fibers with lower environmental impact throughout their lifecycle.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal -->
+  <div id="fiberModal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <div class="modal-header">
+        <h2 id="modalFiberName">Lyocell (TENCEL™)</h2>
+        <p id="modalFiberOrigin">Source: Wood pulp (Sustainable)</p>
+      </div>
+      <div class="modal-stats">
+        <div class="modal-stat co2">
+          <div class="metric-title">CO₂/kg</div>
+          <div class="modal-stat-value">5.5</div>
+          <div class="metric-desc">kg CO₂ per kg fiber</div>
+        </div>
+        <div class="modal-stat score">
+          <div class="metric-title">Mango DPI Score</div>
+          <div class="modal-stat-value">85</div>
+          <div class="metric-desc">Sustainability score</div>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="modal-section">
+          <h3>Structure</h3>
+          <p id="modalStructure">Regenerated Cellulose</p>
+          <h3>Characteristics</h3>
+          <div class="badges">
+            <span class="badge recycled">Closed Loop</span>
+            <span class="badge">Biodegradable</span>
+          </div>
+        </div>
+        <div class="modal-section">
+          <h3>Common Uses</h3>
+          <ul>
+            <li>Apparel</li><li>Bedding</li><li>Towels</li><li>Activewear</li>
+          </ul>
+          <h3>Environmental Impact</h3>
+          <p>Lyocell production uses a closed-loop process that recycles water and solvents. It has a lower environmental impact compared to other regenerated fibers.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ---------- Base Database ---------- */
+    const fiberDatabase = [
+      /* Plant-Based */ {name:"Cotton",category:"Plant-Based",origin:"Cotton plant",structure:"Natural Cellulose",co2:5.9,score:70,badges:["Biodegradable","Renewable"],uses:["Apparel","Home Textiles"],type:"Natural"},
+      {name:"Flax (Linen)",category:"Plant-Based",origin:"Flax plant",structure:"Natural Cellulose",co2:0.9,score:85,badges:["Biodegradable","Low Water"],uses:["Apparel","Bedding"],type:"Natural"},
+      {name:"Hemp",category:"Plant-Based",origin:"Hemp plant",structure:"Natural Cellulose",co2:0.7,score:90,badges:["Biodegradable","Carbon Sequestration"],uses:["Apparel","Industrial Textiles"],type:"Natural"},
+      {name:"Jute",category:"Plant-Based",origin:"Jute plant",structure:"Natural Cellulose",co2:2.4,score:75,badges:["Biodegradable","Low Pesticide"],uses:["Packaging","Carpet Backing"],type:"Natural"},
+      {name:"Ramie",category:"Plant-Based",origin:"Ramie plant",structure:"Natural Cellulose",co2:5.5,score:80,badges:["Biodegradable","Durable"],uses:["Apparel","Industrial Applications"],type:"Natural"},
+      {name:"Abaca (Manila hemp)",category:"Plant-Based",origin:"Abaca plant",structure:"Natural Cellulose",co2:3.2,score:80,badges:["Biodegradable","Renewable"],uses:["Specialty Papers","Ropes"],type:"Natural"},
+      {name:"Bamboo (Mechanically processed)",category:"Plant-Based",origin:"Bamboo plant",structure:"Natural Cellulose",co2:3.6,score:85,badges:["Rapid Growth","Renewable"],uses:["Apparel","Towels"],type:"Natural"},
+      {name:"Kapok",category:"Plant-Based",origin:"Kapok tree",structure:"Natural Cellulose",co2:2.1,score:80,badges:["Biodegradable","Lightweight"],uses:["Insulation","Life Jackets"],type:"Natural"},
+      {name:"Coir (Coconut fiber)",category:"Plant-Based",origin:"Coconut husk",structure:"Natural Cellulose + Lignin",co2:2.8,score:75,badges:["Byproduct Utilization","Durable"],uses:["Floor Mats","Brushes"],type:"Natural"},
+      /* Animal-Based */ {name:"Wool (Sheep)",category:"Animal-Based",origin:"Sheep",structure:"Natural Protein (Keratin)",co2:10.8,score:60,badges:["Biodegradable","Renewable"],uses:["Apparel","Carpets"],type:"Natural"},
+      {name:"Cashmere (Goat)",category:"Animal-Based",origin:"Cashmere goat",structure:"Natural Protein (Keratin)",co2:108.0,score:50,badges:["Luxury Fiber","Insulating"],uses:["Luxury Apparel","Accessories"],type:"Natural"},
+      {name:"Angora (Rabbit)",category:"Animal-Based",origin:"Angora rabbit",structure:"Natural Protein (Keratin)",co2:90.0,score:40,badges:["Soft","Warm"],uses:["Luxury Knitwear","Accessories"],type:"Natural"},
+      {name:"Mohair (Goat)",category:"Animal-Based",origin:"Angora goat",structure:"Natural Protein (Keratin)",co2:18.5,score:55,badges:["Lustrous","Durable"],uses:["Apparel","Upholstery"],type:"Natural"},
+      {name:"Silk (Silkworm cocoons)",category:"Animal-Based",origin:"Silkworm",structure:"Natural Protein (Fibroin)",co2:11.5,score:65,badges:["Luxury Fiber","Biodegradable"],uses:["Luxury Apparel","Home Textiles"],type:"Natural"},
+      {name:"Alpaca",category:"Animal-Based",origin:"Alpaca",structure:"Natural Protein (Keratin)",co2:18.0,score:70,badges:["Sustainable Farming","Hypoallergenic"],uses:["Apparel","Blankets"],type:"Natural"},
+      {name:"Llama / Camel hair",category:"Animal-Based",origin:"Llama/Camel",structure:"Natural Protein (Keratin)",co2:15.2,score:65,badges:["Thermal Regulation","Durable"],uses:["Outerwear","Blankets"],type:"Natural"},
+      {name:"Asbestos",category:"Mineral-Based",origin:"Mineral deposits",structure:"Hydrated Silicate Mineral",co2:1.2,score:0,badges:["Restricted","Toxic"],uses:["Industrial (Historical)","Fireproofing"],type:"Mineral"},
+      /* Organic */ {name:"Organic Cotton",category:"Organic Fibers",origin:"Cotton plant (Organic)",structure:"Natural Cellulose",co2:3.8,score:85,badges:["GOTS Certified","No Pesticides"],uses:["Apparel","Baby Products"],type:"Natural"},
+      {name:"Organic Flax (Linen)",category:"Organic Fibers",origin:"Flax plant (Organic)",structure:"Natural Cellulose",co2:0.5,score:90,badges:["Low Impact","Biodegradable"],uses:["Apparel","Bedding"],type:"Natural"},
+      {name:"Organic Wool",category:"Organic Fibers",origin:"Sheep (Organic)",structure:"Natural Protein (Keratin)",co2:7.6,score:75,badges:["Ethical Farming","Biodegradable"],uses:["Apparel","Eco-Friendly Carpets"],type:"Natural"},
+      {name:"Organic Hemp",category:"Organic Fibers",origin:"Hemp plant (Organic)",structure:"Natural Cellulose",co2:0.4,score:95,badges:["Carbon Negative","Low Water"],uses:["Apparel","Sustainable Textiles"],type:"Natural"},
+      {name:"GOTS-Certified Silk",category:"Organic Fibers",origin:"Silkworm (Ethical)",structure:"Natural Protein (Fibroin)",co2:8.9,score:80,badges:["Ethical Production","Luxury"],uses:["Luxury Apparel","Accessories"],type:"Natural"},
+      /* Recycled */ {name:"rPET (Recycled Polyester)",category:"Recycled Fibers",origin:"Recycled plastic",structure:"Synthetic Polymer (PET)",co2:4.2,score:75,badges:["Recycled","GRS Certified"],uses:["Apparel","Outdoor Gear"],type:"Recycled"},
+      {name:"Recycled Nylon",category:"Recycled Fibers",origin:"Recycled nylon waste",structure:"Synthetic Polymer (Polyamide)",co2:5.1,score:70,badges:["Recycled","ECONYL®"],uses:["Activewear","Swimwear"],type:"Recycled"},
+      {name:"Recycled Cotton",category:"Recycled Fibers",origin:"Textile waste",structure:"Natural Cellulose",co2:2.3,score:80,badges:["Recycled","Waste Reduction"],uses:["Apparel","Industrial Wipes"],type:"Recycled"},
+      {name:"Recycled Wool",category:"Recycled Fibers",origin:"Textile waste",structure:"Natural Protein (Keratin)",co2:5.4,score:75,badges:["Recycled","Energy Efficient"],uses:["Apparel","Insulation"],type:"Recycled"},
+      {name:"Blended Recycled Fibers",category:"Recycled Fibers",origin:"Textile waste",structure:"Composite Structure",co2:3.8,score:70,badges:["Recycled","Waste Reduction"],uses:["Apparel","Upholstery"],type:"Recycled"},
+      /* Regenerated */ {name:"Viscose Rayon",category:"Regenerated Fibers",origin:"Wood pulp",structure:"Regenerated Cellulose",co2:11.5,score:50,badges:["Plant Origin","Versatile"],uses:["Apparel","Home Textiles"],type:"Regenerated"},
+      {name:"Lyocell (TENCEL™)",category:"Regenerated Fibers",origin:"Wood pulp (Sustainable)",structure:"Regenerated Cellulose",co2:5.5,score:85,badges:["Closed Loop","Biodegradable"],uses:["Apparel","Bedding"],type:"Regenerated"},
+      {name:"Modal",category:"Regenerated Fibers",origin:"Beech tree pulp",structure:"Regenerated Cellulose",co2:7.2,score:70,badges:["Soft","Durable"],uses:["Underwear","Towels"],type:"Regenerated"},
+      {name:"Acetate",category:"Regenerated Fibers",origin:"Wood pulp",structure:"Cellulose Acetate",co2:8.8,score:40,badges:["Silk-like","Drapes Well"],uses:["Lining","Specialty Apparel"],type:"Regenerated"},
+      {name:"Bamboo Rayon",category:"Regenerated Fibers",origin:"Bamboo pulp",structure:"Regenerated Cellulose",co2:9.8,score:60,badges:["Renewable Source","Antibacterial"],uses:["Apparel","Bedding"],type:"Regenerated"},
+      {name:"Soybean Fiber",category:"Regenerated Fibers",origin:"Soybean protein",structure:"Plant Protein (Soy)",co2:4.2,score:75,badges:["Byproduct Utilization","Biodegradable"],uses:["Apparel","Medical Textiles"],type:"Regenerated"},
+      {name:"Milk Fiber (Azlon)",category:"Regenerated Fibers",origin:"Milk protein",structure:"Animal Protein (Casein)",co2:6.8,score:65,badges:["Byproduct Utilization","Hypoallergenic"],uses:["Apparel","Baby Clothing"],type:"Regenerated"},
+      /* Synthetic */ {name:"Polyester (PES)",category:"Synthetic Fibers",origin:"Petroleum",structure:"Synthetic Polymer (PET)",co2:9.5,score:30,badges:["Durable","Wrinkle-resistant"],uses:["Apparel","Outdoor Gear"],type:"Synthetic"},
+      {name:"Nylon (PA)",category:"Synthetic Fibers",origin:"Petroleum",structure:"Synthetic Polymer (Polyamide)",co2:7.6,score:35,badges:["Strong","Elastic"],uses:["Hosiery","Sportswear"],type:"Synthetic"},
+      {name:"Acrylic",category:"Synthetic Fibers",origin:"Petroleum",structure:"Synthetic Polymer (Polyacrylonitrile)",co2:5.5,score:25,badges:["Wool-like","Colorfast"],uses:["Knitwear","Blankets"],type:"Synthetic"},
+      {name:"Polypropylene (PP)",category:"Synthetic Fibers",origin:"Petroleum",structure:"Synthetic Polymer (Polypropylene)",co2:3.4,score:40,badges:["Lightweight","Moisture-wicking"],uses:["Activewear","Outdoor Gear"],type:"Synthetic"},
+      {name:"Spandex (Elastane)",category:"Synthetic Fibers",origin:"Petroleum",structure:"Synthetic Polymer (Polyurethane)",co2:15.8,score:20,badges:["High Elasticity","Durable"],uses:["Sportswear","Swimwear"],type:"Synthetic"},
+      {name:"Aramid",category:"Synthetic Fibers",origin:"Petrochemicals",structure:"Synthetic Polymer (Aromatic Polyamide)",co2:33.6,score:10,badges:["Heat Resistant","Strong"],uses:["Protective Gear","Aerospace"],type:"Synthetic"}
+    ];
+
+    /* ---------- DOM Refs ---------- */
+    const fiberGrid=document.getElementById('fiberGrid');
+    const searchInput=document.getElementById('searchInput');
+    const sortSelect=document.getElementById('sortSelect');
+    const fiberCount=document.getElementById('fiberCount');
+    const categoryLists={
+      "Plant-Based":document.getElementById('plantBased'),
+      "Animal-Based":document.getElementById('animalBased'),
+      "Recycled Fibers":document.getElementById('recycledFibers'),
+      "Organic Fibers":document.getElementById('organicFibers'),
+      "Regenerated Fibers":document.getElementById('regeneratedFibers'),
+      "Synthetic Fibers":document.getElementById('syntheticFibers')
+    };
+    let impactChart=null;
+
+    /* Modal */
+    const fiberModal=document.getElementById('fiberModal');
+    const modalFiberName=document.getElementById('modalFiberName');
+    const modalFiberOrigin=document.getElementById('modalFiberOrigin');
+    const modalStructure=document.getElementById('modalStructure');
+    const modalCo2=document.querySelector('.modal-stat.co2 .modal-stat-value');
+    const modalScore=document.querySelector('.modal-stat.score .modal-stat-value');
+
+    /* Blend UI */
+    const blendInputs=document.getElementById('blendInputs');
+    const calculateBlendBtn=document.getElementById('calculateBlend');
+    const saveBlendBtn=document.getElementById('saveBlend');
+    const resetBlendBtn=document.getElementById('resetBlend');
+    const addFiberBtn=document.getElementById('addFiberBtn');
+    const blendResults=document.getElementById('blendResults');
+    const blendCo2Value=document.getElementById('blendCo2Value');
+    const blendScoreValue=document.getElementById('blendScoreValue');
+    const totalPercentageSpan=document.getElementById('totalPercentage');
+    const percentageStatus=document.getElementById('percentageStatus');
+    const blendNameInput=document.getElementById('blendNameInput');
+
+    /* Import/Export */
+    const importOrdersBtn=document.getElementById('importOrdersBtn');
+    const exportDataBtn=document.getElementById('exportDataBtn');
+    const fileInput=document.getElementById('fileInput');
+    const importStatus=document.getElementById('importStatus');
+    const importMessage=document.getElementById('importMessage');
+
+    /* ---------- Init ---------- */
+    function init(){
+      // Load custom fibers from localStorage
+      try{
+        const stored=JSON.parse(localStorage.getItem('fiberDatabase')||'[]');
+        if(Array.isArray(stored)&&stored.length){
+          stored.filter(f=>f&&f.composition).forEach(f=>fiberDatabase.push(f));
+        }
+      }catch(e){console.warn('fiberDatabase load failed',e);}
+
+      renderCategoryFilters();
+      renderFiberCards(fiberDatabase);
+      renderImpactChart(fiberDatabase);
+      setupEventListeners();
+      populateBlendSelects();
+      updateTotalPercentage();
+    }
+
+    /* ---------- Helpers ---------- */
+    function updateTotalPercentage(){
+      const inputs=document.querySelectorAll('.percentage');
+      let total=0; inputs.forEach(i=>total+=(parseFloat(i.value)||0));
+      totalPercentageSpan.textContent=total.toFixed(1);
+      if(Math.abs(total-100)<0.001){percentageStatus.textContent='✓ Perfect';percentageStatus.className='percentage-status valid';calculateBlendBtn.disabled=false;saveBlendBtn.disabled=false;}
+      else if(total>100){percentageStatus.textContent='⚠ Over 100%';percentageStatus.className='percentage-status invalid';calculateBlendBtn.disabled=true;saveBlendBtn.disabled=true;}
+      else if(total>0){percentageStatus.textContent=`⚠ Need ${(100-total).toFixed(1)}% more`;percentageStatus.className='percentage-status invalid';calculateBlendBtn.disabled=true;saveBlendBtn.disabled=true;}
+      else{percentageStatus.textContent='';percentageStatus.className='percentage-status';calculateBlendBtn.disabled=true;saveBlendBtn.disabled=true;}
+    }
+
+    function renderCategoryFilters(){
+      // clear
+      for(const c in categoryLists){categoryLists[c].innerHTML='';}
+      // "All Fibers" to first list
+      const firstList=Object.values(categoryLists)[0];
+      const allBtn=document.createElement('li');
+      allBtn.className='category-item active';
+      allBtn.innerHTML=`All Fibers <span class="category-count">${fiberDatabase.length}</span>`;
+      allBtn.addEventListener('click',(e)=>{
+        renderFiberCards(fiberDatabase);renderImpactChart(fiberDatabase);
+        document.querySelectorAll('.category-item').forEach(i=>i.classList.remove('active'));
+        e.currentTarget.classList.add('active');
+      });
+      firstList.prepend(allBtn);
+
+      for(const cat in categoryLists){
+        const list=categoryLists[cat];
+        fiberDatabase.filter(f=>f.category===cat).forEach(fiber=>{
+          const li=document.createElement('li');
+          li.className='category-item';
+          li.innerHTML=`${fiber.name}<span class="category-count">${fiber.co2} kg</span>`;
+          li.addEventListener('click',(e)=>{filterByCategory(cat,fiber.name,e.currentTarget);});
+          list.appendChild(li);
+        });
+      }
+    }
+
+    function renderFiberCards(fibers){
+      fiberGrid.innerHTML=''; fiberCount.textContent=fibers.length;
+      fibers.forEach(fiber=>{
+        const card=document.createElement('div'); card.className='fiber-card' + (fiber.type === 'Blend' ? ' blend' : '');
+        card.innerHTML=`
+          <div class="fiber-header">${fiber.type === 'Blend' ? '<i class="fas fa-layer-group blend-icon"></i>' : ''}
+            <div class="fiber-type">${fiber.type||''}</div>
+            <h2 class="fiber-name">${fiber.name}</h2>
+            <p class="fiber-origin">Source: ${fiber.origin}</p>
+          </div>
+          <div class="fiber-body">
+            <p class="fiber-structure">Structure: ${fiber.structure}</p>
+            <div class="metrics">
+              <div class="metric co2">
+                <div class="metric-title">CO₂/kg</div>
+                <div class="metric-value co2-value">${fiber.co2}</div>
+                <div class="metric-desc">kg CO₂ per kg fiber</div>
+              </div>
+              <div class="metric score">
+                <div class="metric-title">Mango DPI Score</div>
+                <div class="metric-value score-value">${fiber.score}</div>
+                <div class="score-bar"><div class="score-fill" style="width:${fiber.score}%"></div></div>
+              </div>
+            </div>
+
+            ${ (Array.isArray(fiber.composition) && fiber.composition.length)
+              ? `
+              <div class="metrics" style="margin-top:10px;">
+                <div class="metric ratio">
+                  <div class="metric-title">Blend Ratio</div>
+                  <div class="ratio-badges">
+                    ${fiber.composition.map(c=>`<span class="ratio-badge">${c.fiber} ${c.percentage}%</span>`).join('')}
+                  </div>
+                </div>
+              </div>` : '' }
+
+            <div class="badges">
+              ${(fiber.badges||[]).map(b=>`<span class="badge ${b.includes('Recycled')?'recycled':(b.includes('Restricted')||b.includes('Synthetic'))?'synthetic':''}">${b}</span>`).join('')}
+            </div>
+          </div>
+          <div class="fiber-footer">
+            <div class="fiber-uses">Common uses: ${(fiber.uses||[]).join(', ')}</div>
+            <button class="detail-btn" data-fiber='${JSON.stringify(fiber).replace(/'/g,"\\'")}'>Details</button>
+          </div>
+        `;
+        fiberGrid.appendChild(card);
+      });
+
+      document.querySelectorAll('.detail-btn').forEach(btn=>{
+        btn.addEventListener('click',function(){
+          const data=JSON.parse(this.getAttribute('data-fiber'));
+          openFiberModal(data);
+        });
+      });
+    }
+
+    function openFiberModal(fiber){
+      modalFiberName.textContent=fiber.name;
+      const modalHeader = document.querySelector('.modal-header');
+      if (fiber.type === 'Blend') {
+        modalHeader.style.background = '#f9ba00';
+        modalHeader.style.color = 'var(--secondary)';
+        modalHeader.innerHTML = '<i class="fas fa-layer-group blend-icon"></i>' + modalHeader.innerHTML;
+      } else {
+        modalHeader.style.background = 'var(--primary)';
+        modalHeader.style.color = '#fff';
+      }
+      modalFiberOrigin.textContent=`Source: ${fiber.origin}`;
+      modalStructure.textContent=fiber.structure;
+      modalCo2.textContent=fiber.co2;
+      modalScore.textContent=fiber.score;
+      fiberModal.style.display='flex';
+    }
+    document.querySelector('.close-modal').addEventListener('click',()=>fiberModal.style.display='none');
+    window.addEventListener('click',(e)=>{if(e.target===fiberModal) fiberModal.style.display='none';});
+
+    function filterByCategory(category,fiberName,el){
+      const filtered=fiberDatabase.filter(f=>f.category===category && (!fiberName||f.name===fiberName));
+      renderFiberCards(filtered); renderImpactChart(filtered);
+      document.querySelectorAll('.category-item').forEach(i=>i.classList.remove('active'));
+      if(el) el.classList.add('active');
+    }
+
+    function sortFibers(fibers,criteria){
+      return [...fibers].sort((a,b)=>{
+        switch(criteria){
+          case 'name': return a.name.localeCompare(b.name);
+          case 'co2-asc': return a.co2-b.co2;
+          case 'co2-desc': return b.co2-a.co2;
+          case 'score-asc': return a.score-b.score;
+          case 'score-desc': return b.score-a.score;
+          default: return 0;
+        }
+      });
+    }
+
+    function searchFibers(q){
+      if(!q) return fiberDatabase;
+      const s=q.toLowerCase();
+      return fiberDatabase.filter(f=>
+        f.name.toLowerCase().includes(s) ||
+        (f.origin||'').toLowerCase().includes(s) ||
+        (f.badges||[]).some(b=>b.toLowerCase().includes(s)) ||
+        (f.uses||[]).some(u=>u.toLowerCase().includes(s))
+      );
+    }
+
+    function renderImpactChart(fibers){
+      const categories=[...new Set(fibers.map(f=>f.category))];
+      const avgCo2=categories.map(c=>{const g=fibers.filter(f=>f.category===c);return g.reduce((s,f)=>s+f.co2,0)/g.length;});
+      const avgScore=categories.map(c=>{const g=fibers.filter(f=>f.category===c);return g.reduce((s,f)=>s+f.score,0)/g.length;});
+      const ctx=document.getElementById('impactChart').getContext('2d');
+      if(impactChart) impactChart.destroy();
+      impactChart=new Chart(ctx,{
+        type:'bar',
+        data:{labels:categories,datasets:[
+          {label:'Average CO₂/kg',data:avgCo2,backgroundColor:'rgba(0,85,48,0.7)',borderColor:'rgba(0,85,48,1)',borderWidth:1},
+          {label:'Average Mango DPI Score',data:avgScore,backgroundColor:'rgba(10,29,61,0.7)',borderColor:'rgba(10,29,61,1)',borderWidth:1,type:'line',yAxisID:'y1'}
+        ]},
+        options:{
+          responsive:true,
+          scales:{
+            y:{beginAtZero:true,title:{display:true,text:'CO₂/kg (kg)'}},
+            y1:{position:'right',beginAtZero:true,max:100,title:{display:true,text:'Mango DPI Score'},grid:{drawOnChartArea:false}}
+          },
+          plugins:{tooltip:{callbacks:{label:(ctx)=>`${ctx.dataset.label||''}: ${ctx.parsed.y.toFixed(1)}`}}}
+        }
+      });
+    }
+
+    function populateBlendSelects(){
+      const selects=document.querySelectorAll('.fiber-select');
+      selects.forEach(select=>{
+        while(select.options.length>1) select.remove(1);
+        fiberDatabase.forEach(f=>{
+          const o=document.createElement('option');o.value=f.name;o.textContent=f.name;select.appendChild(o);
+        });
+      });
+    }
+
+    function calculateBlendedFiber(){
+      const rows=document.querySelectorAll('.blend-row');
+      let totalPct=0,valid=0,co2T=0,scoreT=0;
+      rows.forEach(row=>{
+        const sel=row.querySelector('.fiber-select');const inp=row.querySelector('.percentage');
+        if(sel.value && inp.value){
+          const pct=parseFloat(inp.value);const f=fiberDatabase.find(x=>x.name===sel.value);
+          if(f){totalPct+=pct;co2T+=pct*f.co2;scoreT+=pct*f.score;valid++;}
+        }
+      });
+      if(valid<2){alert('Please select at least two fibers and enter their percentages');return;}
+      if(Math.abs(totalPct-100)>1){alert(`Percentages must add up to 100% (current: ${totalPct}%)`);return;}
+      blendCo2Value.textContent=(co2T/100).toFixed(1);
+      blendScoreValue.textContent=(scoreT/100).toFixed(1);
+      blendResults.style.display='block';
+      blendResults.scrollIntoView({behavior:'smooth',block:'nearest'});
+    }
+
+    function aggregateBadgesAndUses(comp){
+      const badges=[];const uses=[];
+      (comp||[]).forEach(r=>{
+        const f=fiberDatabase.find(x=>x.name===r.fiber);
+        if(f){ if(Array.isArray(f.badges)) badges.push(...f.badges); if(Array.isArray(f.uses)) uses.push(...f.uses); }
+      });
+      const uniq=arr=>[...new Set(arr.map(x=>String(x).trim()))].filter(Boolean);
+      return {badges:uniq(badges),uses:uniq(uses)};
+    }
+
+    function saveBlendedFiber(){
+      const rowsEls=document.querySelectorAll('.blend-row');
+      const comp=[];
+      rowsEls.forEach(row=>{
+        const sel=row.querySelector('.fiber-select');const inp=row.querySelector('.percentage');
+        if(sel.value && inp.value){comp.push({fiber:sel.value,percentage:parseFloat(inp.value)});}
+      });
+      if(comp.length<2){alert('Please select at least two fibers to save');return;}
+      calculateBlendedFiber(); // ensure results exist
+
+      const co2=Number(blendCo2Value.textContent)||0;
+      const score=Number(blendScoreValue.textContent)||0;
+
+      let name=(blendNameInput.value||'').trim();
+      if(!name){name=comp.map(c=>`${c.fiber.split(' ')[0]}${c.percentage}`).join('-');}
+
+      const aggr=aggregateBadgesAndUses(comp);
+
+      const newFiber={
+        name,category:"Blended",origin:"User Defined",
+        structure:comp.map(c=>`${c.fiber} ${c.percentage}%`).join(" / "),
+        co2,score,badges:aggr.badges.length?aggr.badges:["Custom Blend"],uses:aggr.uses,
+        type:"Blend",composition:comp,savedAt:new Date().toISOString()
+      };
+
+      // Add to DB and persist (store only customs)
+      fiberDatabase.push(newFiber);
+      const persisted=JSON.parse(localStorage.getItem('fiberDatabase')||'[]');
+      const list=Array.isArray(persisted)?persisted:[]; list.push(newFiber);
+      localStorage.setItem('fiberDatabase',JSON.stringify(list));
+
+      // Optional: legacy saved list history
+      const saved=JSON.parse(localStorage.getItem('savedBlends')||'[]');
+      saved.push({name,composition:comp,co2,score,savedAt:newFiber.savedAt});
+      localStorage.setItem('savedBlends',JSON.stringify(saved));
+
+      // Re-render full UI
+      renderCategoryFilters();
+      renderFiberCards(fiberDatabase);   // IMPORTANT: with argument
+      renderImpactChart(fiberDatabase);
+      populateBlendSelects();
+
+      alert(`Blend saved as: ${name}\nCO₂: ${co2} kg/kg\nScore: ${score}`);
+    }
+
+    function resetBlendedFiber(){
+      const rows=document.querySelectorAll('.blend-row');
+      rows.forEach(r=>{r.querySelector('.fiber-select').value='';r.querySelector('.percentage').value='';});
+      document.querySelectorAll('.remove-blend').forEach((b,i)=>b.style.display=(i===0?'none':'flex'));
+      blendResults.style.display='none';
+      while(blendInputs.children.length>2){blendInputs.removeChild(blendInputs.lastChild);}
+      blendNameInput.value='';
+      updateTotalPercentage();
+    }
+
+    function addBlendRow(){
+      if(blendInputs.children.length>=5){alert('Maximum of 5 fibers allowed');return;}
+      const row=document.createElement('div');row.className='blend-row';
+      row.innerHTML=`<select class="fiber-select"><option value="">Select fiber</option></select>
+        <input type="number" class="percentage" placeholder="%" min="1" max="100">
+        <button class="remove-blend"><i class="fas fa-times"></i></button>`;
+      blendInputs.appendChild(row);
+      const sel=row.querySelector('.fiber-select');
+      fiberDatabase.forEach(f=>{const o=document.createElement('option');o.value=f.name;o.textContent=f.name;sel.appendChild(o);});
+      row.querySelector('.percentage').addEventListener('input',updateTotalPercentage);
+      row.querySelector('.remove-blend').addEventListener('click',function(){removeBlendRow(this);});
+      document.querySelectorAll('.remove-blend').forEach(b=>b.style.display='flex');
+      updateTotalPercentage();
+    }
+
+    function removeBlendRow(btn){
+      if(blendInputs.children.length<=2){alert('At least two fibers are required');return;}
+      const row=btn.closest('.blend-row'); if(row) row.remove();
+      if(blendInputs.children.length===2){document.querySelectorAll('.remove-blend')[0].style.display='none';}
+      updateTotalPercentage();
+    }
+
+    /* ---------- Import/Export Functions ---------- */
+    function handleFileImport(event){
+      const file=event.target.files[0];
+      if(!file){return;}
+      
+      showImportStatus('Processing file...','info');
+      
+      const reader=new FileReader();
+      reader.onload=function(e){
+        try{
+          const data=JSON.parse(e.target.result);
+          processImportedData(data);
+        }catch(error){
+          console.error('File parsing error:',error);
+          showImportStatus('Error: Invalid JSON file format','error');
+        }
+      };
+      reader.readAsText(file);
+      
+      // Reset file input
+      fileInput.value='';
+    }
+
+    function processImportedData(data){
+      let importedCount=0;
+      let skippedCount=0;
+      
+      // Handle different data formats
+      if(data.orders && Array.isArray(data.orders)){
+        // RandomOrderCreator format
+        data.orders.forEach(order=>{
+          if(order.fibers && Array.isArray(order.fibers) && order.fibers.length>=2){
+            const newFiber=convertOrderToFiber(order);
+            if(addFiberToDatabase(newFiber)){
+              importedCount++;
+            }else{
+              skippedCount++;
+            }
+          }
+        });
+      }else{
+        showImportStatus('Error: Unsupported file format','error');
+        return;
+      }
+      
+      if(importedCount>0){
+        // Update UI
+        renderCategoryFilters();
+        renderFiberCards(fiberDatabase);
+        renderImpactChart(fiberDatabase);
+        populateBlendSelects();
+        
+        // Save to localStorage
+        const persisted=fiberDatabase.filter(f=>f.savedAt||f.type==='Blend');
+        localStorage.setItem('fiberDatabase',JSON.stringify(persisted));
+        
+        showImportStatus(`Successfully imported ${importedCount} fiber(s). ${skippedCount>0?`Skipped ${skippedCount} duplicate(s).`:''}`, 'success');
+      }else{
+        showImportStatus('No valid fibers found in the file','warning');
+      }
+    }
+
+    function convertOrderToFiber(order){
+      // Calculate weighted averages from order fibers
+      let totalCo2=0,totalScore=0,totalWeight=0;
+      const composition=[];
+      
+      order.fibers.forEach(f=>{
+        const baseFiber=fiberDatabase.find(bf=>bf.name===f.fiber);
+        if(baseFiber){
+          const weight=f.percentage/100;
+          totalCo2+=baseFiber.co2*weight;
+          totalScore+=baseFiber.score*weight;
+          totalWeight+=weight;
+          composition.push({fiber:f.fiber,percentage:f.percentage});
+        }
+      });
+      
+      const aggr=aggregateBadgesAndUses(composition);
+      
+      return{
+        name:order.orderName||`Imported Blend ${Date.now()}`,
+        category:"Blended",
+        origin:"Imported from RandomOrderCreator",
+        structure:composition.map(c=>`${c.fiber} ${c.percentage}%`).join(" / "),
+        co2:Number((totalCo2).toFixed(1)),
+        score:Number((totalScore).toFixed(1)),
+        badges:[...aggr.badges,"Imported Blend"],
+        uses:aggr.uses,
+        type:"Blend",
+        composition:composition,
+        savedAt:new Date().toISOString(),
+        importedFrom:'RandomOrderCreator'
+      };
+    }
+
+    function addFiberToDatabase(fiber){
+      // Check for duplicates
+      const existing=fiberDatabase.find(f=>f.name===fiber.name);
+      if(existing){
+        return false; // Skip duplicate
+      }
+      
+      // Add to database
+      fiberDatabase.push(fiber);
+      return true;
+    }
+
+    function exportAllData(){
+      const customFibers=fiberDatabase.filter(f=>f.savedAt||f.type==='Blend');
+      const allBlends=JSON.parse(localStorage.getItem('savedBlends')||'[]');
+      
+      const exportData={
+        timestamp:new Date().toISOString(),
+        version:'1.0',
+        customFibers:customFibers,
+        savedBlends:allBlends,
+        totalFibers:fiberDatabase.length
+      };
+      
+      const blob=new Blob([JSON.stringify(exportData,null,2)],{type:'application/json'});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      a.href=url;
+      a.download=`fiber-database-export-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      showImportStatus(`Exported ${customFibers.length} custom fiber(s) and ${allBlends.length} saved blend(s)`,'success');
+    }
+
+    function showImportStatus(message,type){
+      importMessage.textContent=message;
+      importStatus.className='';
+      
+      switch(type){
+        case 'success':
+          importStatus.style.backgroundColor='rgba(40,167,69,0.1)';
+          importStatus.style.borderLeft='4px solid #28a745';
+          importStatus.style.color='#155724';
+          break;
+        case 'error':
+          importStatus.style.backgroundColor='rgba(213,22,53,0.1)';
+          importStatus.style.borderLeft='4px solid #D51635';
+          importStatus.style.color='#721c24';
+          break;
+        case 'warning':
+          importStatus.style.backgroundColor='rgba(249,186,0,0.1)';
+          importStatus.style.borderLeft='4px solid #f9ba00';
+          importStatus.style.color='#856404';
+          break;
+        case 'info':
+          importStatus.style.backgroundColor='rgba(0,85,48,0.1)';
+          importStatus.style.borderLeft='4px solid #005530';
+          importStatus.style.color='#004429';
+          break;
+      }
+      
+      importStatus.style.display='block';
+      
+      // Auto-hide after 5 seconds
+      setTimeout(()=>{
+        importStatus.style.display='none';
+      },5000);
+    }
+
+    function setupEventListeners(){
+      searchInput.addEventListener('input',()=>{
+        const results=searchFibers(searchInput.value);
+        const sorted=sortFibers(results,sortSelect.value);
+        renderFiberCards(sorted);renderImpactChart(sorted);
+      });
+      sortSelect.addEventListener('change',()=>{
+        const results=searchFibers(searchInput.value);
+        const sorted=sortFibers(results,sortSelect.value);
+        renderFiberCards(sorted);renderImpactChart(sorted);
+      });
+      calculateBlendBtn.addEventListener('click',calculateBlendedFiber);
+      saveBlendBtn.addEventListener('click',saveBlendedFiber);
+      resetBlendBtn.addEventListener('click',resetBlendedFiber);
+      addFiberBtn.addEventListener('click',addBlendRow);
+      document.querySelectorAll('.percentage').forEach(i=>i.addEventListener('input',updateTotalPercentage));
+      document.querySelectorAll('.remove-blend').forEach(b=>b.addEventListener('click',function(){removeBlendRow(this);}));
+      document.querySelector('.close-modal').addEventListener('click',()=>fiberModal.style.display='none');
+      
+      // Import/Export event listeners
+      importOrdersBtn.addEventListener('click',()=>fileInput.click());
+      exportDataBtn.addEventListener('click',exportAllData);
+      fileInput.addEventListener('change',handleFileImport);
+    }
+
+    document.addEventListener('DOMContentLoaded',init);
+  </script>
+</body>
+</html>
+            }else{
+              skippedCount++;
+            }
+          }
+        });
+      }else if(Array.isArray(data)){
+        // Direct fiber array format
+        data.forEach(fiber=>{
+          if(fiber.name && fiber.co2 !== undefined && fiber.score !== undefined){
+            if(addFiberToDatabase(fiber)){
